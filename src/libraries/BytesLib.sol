@@ -4,8 +4,11 @@
 pragma solidity ^0.8.0;
 
 import {Constants} from "./Constants.sol";
+import {CalldataDecoder} from "infinity-periphery/src/libraries/CalldataDecoder.sol";
 
 library BytesLib {
+    using CalldataDecoder for bytes;
+
     error SliceOutOfBounds();
 
     /// @notice Returns the address starting at byte 0
@@ -16,22 +19,6 @@ library BytesLib {
         if (_bytes.length < Constants.ADDR_SIZE) revert SliceOutOfBounds();
         assembly {
             _address := shr(96, calldataload(_bytes.offset))
-        }
-    }
-
-    /// @notice Returns the pool details starting at byte 0
-    /// @dev length and overflow checks must be carried out before calling
-    /// @param _bytes The input bytes string to slice
-    /// @return token0 The address at byte 0
-    /// @return fee The uint24 starting at byte 20
-    /// @return token1 The address at byte 23
-    function toPool(bytes calldata _bytes) internal pure returns (address token0, uint24 fee, address token1) {
-        if (_bytes.length < Constants.V3_POP_OFFSET) revert SliceOutOfBounds();
-        assembly {
-            let firstWord := calldataload(_bytes.offset)
-            token0 := shr(96, firstWord)
-            fee := and(shr(72, firstWord), 0xffffff)
-            token1 := shr(96, calldataload(add(_bytes.offset, 23)))
         }
     }
 
@@ -59,14 +46,19 @@ library BytesLib {
         if (_bytes.length < length + relativeOffset) revert SliceOutOfBounds();
     }
 
-    /// @notice Decode the `_arg`-th element in `_bytes` as `bytes`
-    /// @param _bytes The input bytes string to extract a bytes string from
-    /// @param _arg The index of the argument to extract
-    function toBytes(bytes calldata _bytes, uint256 _arg) internal pure returns (bytes calldata res) {
-        (uint256 length, uint256 offset) = toLengthOffset(_bytes, _arg);
+    /// @notice Returns the pool details starting at byte 0
+    /// @dev length and overflow checks must be carried out before calling
+    /// @param _bytes The input bytes string to slice
+    /// @return token0 The address at byte 0
+    /// @return fee The uint24 starting at byte 20
+    /// @return token1 The address at byte 23
+    function toPool(bytes calldata _bytes) internal pure returns (address token0, uint24 fee, address token1) {
+        if (_bytes.length < Constants.V3_POP_OFFSET) revert SliceOutOfBounds();
         assembly {
-            res.length := length
-            res.offset := offset
+            let firstWord := calldataload(_bytes.offset)
+            token0 := shr(96, firstWord)
+            fee := and(shr(72, firstWord), 0xffffff)
+            token1 := shr(96, calldataload(add(_bytes.offset, 23)))
         }
     }
 
@@ -74,17 +66,6 @@ library BytesLib {
     /// @param _bytes The input bytes string to extract an address array from
     /// @param _arg The index of the argument to extract
     function toAddressArray(bytes calldata _bytes, uint256 _arg) internal pure returns (address[] calldata res) {
-        (uint256 length, uint256 offset) = toLengthOffset(_bytes, _arg);
-        assembly {
-            res.length := length
-            res.offset := offset
-        }
-    }
-
-    /// @notice Decode the `_arg`-th element in `_bytes` as `bytes[]`
-    /// @param _bytes The input bytes string to extract a bytes array from
-    /// @param _arg The index of the argument to extract
-    function toBytesArray(bytes calldata _bytes, uint256 _arg) internal pure returns (bytes[] calldata res) {
         (uint256 length, uint256 offset) = toLengthOffset(_bytes, _arg);
         assembly {
             res.length := length
@@ -101,5 +82,11 @@ library BytesLib {
             res.length := length
             res.offset := offset
         }
+    }
+
+    /// @notice Equivalent to abi.decode(bytes, bytes[])
+    /// @param _bytes The input bytes string to extract an parameters from
+    function decodeCommandsAndInputs(bytes calldata _bytes) internal pure returns (bytes calldata, bytes[] calldata) {
+        return _bytes.decodeActionsRouterParams();
     }
 }
