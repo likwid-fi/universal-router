@@ -7,3 +7,6 @@
 [submodule "lib/infinity-periphery"]
 	path = lib/infinity-periphery
 	url = https://github.com/pancakeswap/infinity-periphery
+[submodule "lib/solmate"]
+	path = lib/solmate
+	url = https://github.com/transmissions11/solmate
