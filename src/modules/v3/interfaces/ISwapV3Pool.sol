@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 /// @title Pool pair compatible with uniswap v3
 /// @author zw
 /// @notice uniswapv3 & pancakeswapv3
-interface IUniswapV3Pair {
+interface ISwapV3Pool {
     /// @notice The contract that deployed the pool, which must adhere to the IUniswapV3Factory interface
     /// @return The contract address
     function factory() external view returns (address);

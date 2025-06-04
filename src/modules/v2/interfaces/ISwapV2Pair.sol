@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 /// @title Pool pair compatible with uniswap v2
 /// @author zw
 /// @notice uniswapv2 & pancakeswapv2
-interface IUniswapV2Pair {
+interface ISwapV2Pair {
     function totalSupply() external view returns (uint256);
 
     function factory() external view returns (address);
