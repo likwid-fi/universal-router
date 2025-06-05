@@ -5,8 +5,16 @@ import {IWETH9} from "../interfaces/IWETH9.sol";
 
 struct RouterParameters {
     address weth9;
+    // uniswap
     address uniswapV2Factory;
     address uniswapV3Factory;
+    address uniswapPoolManager;
+    // pancakeswap
+    address infiVault;
+    address infiClPoolManager;
+    address infiBinPoolManager;
+    address stableFactory;
+    address stableInfo;
     address pancakeswapV2Factory;
     address pancakeswapV3Factory;
 }
