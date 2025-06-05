@@ -21,6 +21,7 @@ abstract contract V3SwapRouter is RouterImmutables, Payments, ISwapV3Callback {
     using CalldataDecoder for bytes;
     using SafeCast for uint256;
 
+    error V3InvalidFactory();
     error V3InvalidSwap();
     error V3TooLittleReceived();
     error V3TooMuchRequested();
@@ -159,6 +160,9 @@ abstract contract V3SwapRouter is RouterImmutables, Payments, ISwapV3Callback {
         address payer,
         bool isExactIn
     ) private returns (int256 amount0Delta, int256 amount1Delta, bool zeroForOne) {
+        if (factory != UNISWAP_V3_FACTORY && factory != PANCAKESWAP_V3_FACTORY) {
+            revert V3InvalidFactory();
+        }
         (address tokenIn, uint24 fee, address tokenOut) = path.decodeFirstPool();
 
         zeroForOne = isExactIn ? tokenIn < tokenOut : tokenOut < tokenIn;

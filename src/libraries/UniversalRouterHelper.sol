@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import {ISwapV2Pair} from "../modules/v2/interfaces/ISwapV2Pair.sol";
 import {ISwapV2Factory} from "../modules/v2/interfaces/ISwapV2Factory.sol";
 import {ISwapV3Factory} from "../modules/v3/interfaces/ISwapV3Factory.sol";
-import {IStableSwapFactory} from "../interfaces/IStableSwapFactory.sol";
-import {IStableSwapInfo} from "../interfaces/IStableSwapInfo.sol";
+import {IStableSwapFactory} from "../modules/pancakeswap/interfaces/IStableSwapFactory.sol";
+import {IStableSwapInfo} from "../modules/pancakeswap/interfaces/IStableSwapInfo.sol";
 import {BytesLib} from "./BytesLib.sol";
 import {Constants} from "./Constants.sol";
 

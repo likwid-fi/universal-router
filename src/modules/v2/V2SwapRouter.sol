@@ -10,6 +10,7 @@ import {ERC20} from "solmate/src/tokens/ERC20.sol";
 
 /// @title Router for v2 Trades
 abstract contract V2SwapRouter is RouterImmutables, Payments {
+    error V2InvalidFactory();
     error V2TooLittleReceived();
     error V2TooMuchRequested();
     error V2InvalidPath();
@@ -45,7 +46,6 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
     /// @param factory The address of the v2 factory
     /// @param recipient The recipient of the output tokens
     /// @param amountIn The amount of input tokens for the trade
-    /// @param fee The fee tier of the v2 pair
     /// @param amountOutMinimum The minimum desired amount of output tokens
     /// @param path The path of the trade as an array of token addresses
     /// @param payer The address that will be paying the input
@@ -53,11 +53,18 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
         address factory,
         address recipient,
         uint256 amountIn,
-        uint24 fee,
         uint256 amountOutMinimum,
         address[] calldata path,
         address payer
     ) internal {
+        uint24 fee;
+        if (factory == PANCAKESWAP_V2_FACTORY) {
+            fee = 25;
+        } else if (factory == UNISWAP_V2_FACTORY) {
+            fee = 30;
+        } else {
+            revert V2InvalidFactory();
+        }
         address firstPair = UniversalRouterHelper.pairFor(factory, path[0], path[1]);
         if (
             amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
@@ -78,7 +85,6 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
     /// @param factory The address of the v2 factory
     /// @param recipient The recipient of the output tokens
     /// @param amountOut The amount of output tokens to receive for the trade
-    /// @param fee The fee tier of the v2 pair
     /// @param amountInMaximum The maximum desired amount of input tokens
     /// @param path The path of the trade as an array of token addresses
     /// @param payer The address that will be paying the input
@@ -86,11 +92,18 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
         address factory,
         address recipient,
         uint256 amountOut,
-        uint24 fee,
         uint256 amountInMaximum,
         address[] calldata path,
         address payer
     ) internal {
+        uint24 fee;
+        if (factory == PANCAKESWAP_V2_FACTORY) {
+            fee = 25;
+        } else if (factory == UNISWAP_V2_FACTORY) {
+            fee = 30;
+        } else {
+            revert V2InvalidFactory();
+        }
         (uint256 amountIn, address firstPair) = UniversalRouterHelper.getAmountInMultihop(factory, amountOut, path, fee);
         if (amountIn > amountInMaximum) revert V2TooMuchRequested();
 
