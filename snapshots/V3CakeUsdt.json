@@ -1,0 +1,7 @@
+{
+  "test_v3Swap_ExactInput0For1": "107531",
+  "test_v3Swap_ExactInput0For1_ContractBalance": "107380",
+  "test_v3Swap_exactInput_MultiHop": "207164",
+  "test_v3Swap_exactOutput0For1": "106219",
+  "test_v3Swap_exactOutput_MultiHop": "185434"
+}
