@@ -2,3 +2,4 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 solmate/=lib/solmate
 infinity-periphery/=lib/infinity-periphery/
+permit2/=lib/infinity-periphery/lib/permit2/
