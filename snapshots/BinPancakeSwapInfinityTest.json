@@ -1,8 +1,8 @@
 {
-  "test_infiBinSwap_ExactInSingle": "194972",
-  "test_infiBinSwap_ExactIn_MultiHop": "278802",
-  "test_infiBinSwap_ExactIn_SingleHop": "199866",
-  "test_infiBinSwap_ExactOutSingle": "192273",
-  "test_infiBinSwap_ExactOut_MultiHop": "274501",
-  "test_infiBinSwap_ExactOut_SingleHop": "197924"
+  "test_infiBinSwap_ExactInSingle": "194994",
+  "test_infiBinSwap_ExactIn_MultiHop": "278824",
+  "test_infiBinSwap_ExactIn_SingleHop": "199888",
+  "test_infiBinSwap_ExactOutSingle": "192295",
+  "test_infiBinSwap_ExactOut_MultiHop": "274523",
+  "test_infiBinSwap_ExactOut_SingleHop": "197946"
 }

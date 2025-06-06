@@ -3,6 +3,8 @@ pragma solidity ^0.8.24;
 
 import {V2SwapRouter} from "../modules/v2/V2SwapRouter.sol";
 import {V3SwapRouter} from "../modules/v3/V3SwapRouter.sol";
+import {V4SwapRouter} from "../modules/v4/V4SwapRouter.sol";
+import {BaseActionsRouterV4} from "../modules/v4/base/BaseActionsRouter.sol";
 import {InfinitySwapRouter} from "../modules/infinity/InfinitySwapRouter.sol";
 import {StableSwapRouter} from "../modules/pancakeswap/StableSwapRouter.sol";
 import {Payments} from "../modules/Payments.sol";
@@ -21,7 +23,15 @@ import {IBinPoolManager} from "infinity-core/src/pool-bin/interfaces/IBinPoolMan
 
 /// @title Decodes and Executes Commands
 /// @notice Called by the UniversalRouter contract to efficiently decode and execute a singular command
-abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, StableSwapRouter, InfinitySwapRouter, Lock {
+abstract contract Dispatcher is
+    Payments,
+    V2SwapRouter,
+    V3SwapRouter,
+    StableSwapRouter,
+    InfinitySwapRouter,
+    V4SwapRouter,
+    Lock
+{
     using BytesLib for bytes;
     using CalldataDecoder for bytes;
 
@@ -36,6 +46,10 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, StableSwap
     /// @notice Public view function to be used instead of msg.sender, as the contract performs self-reentrancy and at
     /// times msg.sender == address(this). Instead msgSender() returns the initiator of the lock
     function msgSender() public view override(BaseActionsRouter) returns (address) {
+        return _getLocker();
+    }
+
+    function msgSenderV4() public view override(BaseActionsRouterV4) returns (address) {
         return _getLocker();
     }
 
@@ -219,6 +233,10 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, StableSwap
                 if (command == Commands.INFI_SWAP) {
                     // pass the calldata provided to InfinitySwapRouter._executeActions (defined in BaseActionsRouter)
                     _executeActions(inputs);
+                    return (success, output);
+                    // This contract MUST be approved to spend the token since its going to be doing the call on the position manager
+                } else if (command == Commands.V4_SWAP) {
+                    _executeActionsV4(inputs);
                     return (success, output);
                     // This contract MUST be approved to spend the token since its going to be doing the call on the position manager
                 } else {

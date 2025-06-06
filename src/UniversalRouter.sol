@@ -6,6 +6,7 @@ pragma solidity 0.8.26;
 import {Dispatcher} from "./base/Dispatcher.sol";
 import {RouterParameters, RouterImmutables} from "./base/RouterImmutables.sol";
 import {InfinitySwapRouter} from "./modules/infinity/InfinitySwapRouter.sol";
+import {V4SwapRouter} from "./modules/v4/V4SwapRouter.sol";
 import {Commands} from "./libraries/Commands.sol";
 import {Constants} from "./libraries/Constants.sol";
 import {IUniversalRouter} from "./interfaces/IUniversalRouter.sol";
@@ -17,6 +18,7 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
         RouterImmutables(params)
         StableSwapRouter(params.stableFactory, params.stableInfo)
         InfinitySwapRouter(params.infiVault, params.infiClPoolManager, params.infiBinPoolManager)
+        V4SwapRouter(params.uniswapPoolManager)
     {}
 
     modifier checkDeadline(uint256 deadline) {

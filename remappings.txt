@@ -3,3 +3,4 @@
 solmate/=lib/solmate
 infinity-periphery/=lib/infinity-periphery/
 permit2/=lib/infinity-periphery/lib/permit2/
+@uniswap/v4-periphery/=lib/v4-periphery/
