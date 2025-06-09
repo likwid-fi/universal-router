@@ -28,7 +28,9 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
 
     /// @notice To receive ETH from WETH
     receive() external payable {
-        if (msg.sender != address(WETH9) && msg.sender != address(vault)) revert InvalidEthSender();
+        if (msg.sender != address(WETH9) && msg.sender != address(vault) && msg.sender != address(poolManager)) {
+            revert InvalidEthSender();
+        }
     }
 
     /// @inheritdoc IUniversalRouter
