@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {PoolId} from "../types/PoolId.sol";
 import {PoolStatus} from "../types/PoolStatus.sol";
 
-interface ILikwidPoolStatus {
+interface ILikwidV2StatusManager {
     function getStatus(PoolId poolId) external view returns (PoolStatus memory _status);
 
     function getAmountOut(PoolStatus memory status, bool zeroForOne, uint256 amountIn)
