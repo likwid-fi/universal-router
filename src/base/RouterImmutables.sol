@@ -10,13 +10,13 @@ struct RouterParameters {
     address uniswapV3Factory;
     address uniswapPoolManager;
     // pancakeswap
-    address infiVault;
-    address infiClPoolManager;
-    address infiBinPoolManager;
     address stableFactory;
     address stableInfo;
     address pancakeswapV2Factory;
     address pancakeswapV3Factory;
+    address infiVault;
+    address infiClPoolManager;
+    address infiBinPoolManager;
 }
 
 /// @title Router Immutable Storage contract

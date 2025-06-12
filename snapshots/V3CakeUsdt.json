@@ -1,7 +1,7 @@
 {
-  "test_v3Swap_ExactInput0For1": "107482",
-  "test_v3Swap_ExactInput0For1_ContractBalance": "107331",
-  "test_v3Swap_exactInput_MultiHop": "207157",
-  "test_v3Swap_exactOutput0For1": "106170",
-  "test_v3Swap_exactOutput_MultiHop": "223764"
+  "test_v3Swap_ExactInput0For1": "107460",
+  "test_v3Swap_ExactInput0For1_ContractBalance": "107309",
+  "test_v3Swap_exactInput_MultiHop": "206201",
+  "test_v3Swap_exactOutput0For1": "106148",
+  "test_v3Swap_exactOutput_MultiHop": "183567"
 }
