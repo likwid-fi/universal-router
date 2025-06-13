@@ -20,4 +20,11 @@ interface IMixedQuoter {
         uint256 amountIn;
         uint256 flag;
     }
+
+    struct QuoteExactOutputSingleStableParams {
+        address tokenIn;
+        address tokenOut;
+        uint256 amountOut;
+        uint256 flag;
+    }
 }

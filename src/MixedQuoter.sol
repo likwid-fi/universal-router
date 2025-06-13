@@ -3,6 +3,7 @@ pragma solidity 0.8.26;
 
 import {SafeCast} from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import {IStableSwap} from "./modules/pancakeswap/interfaces/IStableSwap.sol";
+import {IStableSwapInfo} from "./modules/pancakeswap/interfaces/IStableSwapInfo.sol";
 import {QuoterParameters, QuoterImmutables} from "./base/QuoterImmutables.sol";
 import {PoolTypes} from "./libraries/PoolTypes.sol";
 import {Currency, CurrencyLibrary} from "./types/Currency.sol";
@@ -21,6 +22,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
     error NoPoolTypes();
     error InputLengthMismatch();
     error InvalidPath();
+    error InvalidPoolType();
     error InvalidPoolKeyCurrency();
 
     constructor(QuoterParameters memory params) QuoterImmutables(params) {}
@@ -34,6 +36,18 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         (uint256 i, uint256 j, address swapContract) =
             UniversalRouterHelper.getStableInfo(STABLE_FACTORY, params.tokenIn, params.tokenOut, params.flag);
         amountOut = IStableSwap(swapContract).get_dy(i, j, params.amountIn);
+        gasEstimate = gasBefore - gasleft();
+    }
+
+    function quoteExactOutputSingleStable(QuoteExactOutputSingleStableParams memory params)
+        public
+        view
+        returns (uint256 amountIn, uint256 gasEstimate)
+    {
+        uint256 gasBefore = gasleft();
+        (uint256 i, uint256 j, address swapContract) =
+            UniversalRouterHelper.getStableInfo(STABLE_FACTORY, params.tokenIn, params.tokenOut, params.flag);
+        amountIn = IStableSwapInfo(STABLE_INFO).get_dx(swapContract, i, j, params.amountOut, type(uint256).max);
         gasEstimate = gasBefore - gasleft();
     }
 
@@ -146,9 +160,125 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                     (amountOut, gasEstimateForCurrentPool) = INFI_BIN_QUOTER.quoteExactInputSingle(swapParams);
                 }
             } else {
-                revert NoPoolTypes();
+                revert InvalidPoolType();
             }
+            amountIn = amountOut;
+            gasEstimate += gasEstimateForCurrentPool;
+        }
+    }
 
+    function quoteMixedExactOutput(
+        address[] calldata paths,
+        bytes calldata pools,
+        bytes[] calldata params,
+        uint256 amountOut
+    ) external returns (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) {
+        uint256 numPools = pools.length;
+        if (numPools == 0) revert NoPoolTypes();
+        if (numPools != params.length || numPools != paths.length - 1) revert InputLengthMismatch();
+        fees = new uint256[](numPools);
+        for (uint256 poolIndex = numPools - 1; poolIndex >= 0; poolIndex--) {
+            uint256 gasEstimateForCurrentPool = gasleft();
+            address tokenIn = paths[poolIndex];
+            address tokenOut = paths[poolIndex + 1];
+            if (tokenIn == tokenOut) revert InvalidPath();
+
+            uint256 pool = uint256(uint8(pools[poolIndex]));
+            if (pool == PoolTypes.UNISWAP_V2 || pool == PoolTypes.PANCAKESWAP_V2) {
+                (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
+                address[] memory path = new address[](2);
+                path[0] = tokenIn;
+                path[1] = tokenOut;
+                if (pool == PoolTypes.UNISWAP_V2) {
+                    fees[poolIndex] = 3000; // Uniswap V2 uses a fixed fee of 0.3%
+                    amountIn = UNISWAP_V2_QUOTER.getAmountsIn(amountOut, path)[1];
+                } else {
+                    fees[poolIndex] = 2500; // PancakeSwap V2 uses a fixed fee of 0.25%
+                    amountIn = PANCAKESWAP_V2_QUOTER.getAmountsIn(amountOut, path)[1];
+                }
+                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
+            } else if (pool == PoolTypes.UNISWAP_V3 || pool == PoolTypes.PANCAKESWAP_V3) {
+                (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
+                uint24 fee = abi.decode(params[pool], (uint24));
+                fees[poolIndex] = fee;
+                if (pool == PoolTypes.UNISWAP_V3) {
+                    (amountIn,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactOutputSingle(
+                        IV3Quoter.QuoteExactOutputSingleParams({
+                            tokenIn: tokenIn,
+                            tokenOut: tokenOut,
+                            amount: amountOut,
+                            fee: fee,
+                            sqrtPriceLimitX96: 0
+                        })
+                    );
+                } else {
+                    (amountIn,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactOutputSingle(
+                        IV3Quoter.QuoteExactOutputSingleParams({
+                            tokenIn: tokenIn,
+                            tokenOut: tokenOut,
+                            amount: amountOut,
+                            fee: fee,
+                            sqrtPriceLimitX96: 0
+                        })
+                    );
+                }
+            } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
+                (amountOut, gasEstimateForCurrentPool) = quoteExactOutputSingleStable(
+                    QuoteExactOutputSingleStableParams({
+                        tokenIn: tokenIn,
+                        tokenOut: tokenOut,
+                        amountOut: amountIn,
+                        flag: 2
+                    })
+                );
+                fees[poolIndex] = 0;
+            } else if (pool == PoolTypes.UNISWAP_V4) {
+                QuoteMixedV4ExactInputSingleParams memory v4Params =
+                    abi.decode(params[poolIndex], (QuoteMixedV4ExactInputSingleParams));
+                (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
+                bool zeroForOne = tokenIn < tokenOut;
+                checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
+
+                IV4Quoter.QuoteExactSingleParams memory swapParams = IV4Quoter.QuoteExactSingleParams({
+                    poolKey: v4Params.poolKey,
+                    zeroForOne: zeroForOne,
+                    exactAmount: amountOut.toUint128(),
+                    hookData: v4Params.hookData
+                });
+                (amountIn, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactOutputSingle(swapParams);
+            } else if (pool == PoolTypes.LIKWID_V2) {
+                PoolKey memory poolKey = abi.decode(params[poolIndex], (PoolKey));
+                (tokenIn, tokenOut) = convertWETHToNativeCurrency(poolKey, tokenIn, tokenOut);
+                bool zeroForOne = tokenIn < tokenOut;
+                checkPoolKeyCurrency(poolKey, zeroForOne, tokenIn, tokenOut);
+                PoolId poolId = poolKey.toId();
+                uint24 fee = poolKey.fee;
+                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
+                (amountIn, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountIn(status, zeroForOne, amountOut);
+                fees[poolIndex] = fee;
+                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
+            } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL || pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
+                QuoteMixedInfiExactInputSingleParams memory infiParams =
+                    abi.decode(params[poolIndex], (QuoteMixedInfiExactInputSingleParams));
+                (tokenIn, tokenOut) = convertWETHToInfiNativeCurrency(infiParams.poolKey, tokenIn, tokenOut);
+                bool zeroForOne = tokenIn < tokenOut;
+                checkInfiPoolKeyCurrency(infiParams.poolKey, zeroForOne, tokenIn, tokenOut);
+
+                IInfinityQuoter.QuoteExactSingleParams memory swapParams = IInfinityQuoter.QuoteExactSingleParams({
+                    poolKey: infiParams.poolKey,
+                    zeroForOne: zeroForOne,
+                    exactAmount: amountOut.toUint128(),
+                    hookData: infiParams.hookData
+                });
+                if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL) {
+                    (amountIn, gasEstimateForCurrentPool) = INFI_CL_QUOTER.quoteExactOutputSingle(swapParams);
+                } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
+                    (amountIn, gasEstimateForCurrentPool) = INFI_BIN_QUOTER.quoteExactOutputSingle(swapParams);
+                }
+            } else {
+                revert InvalidPoolType();
+            }
+            amountOut = amountIn;
             gasEstimate += gasEstimateForCurrentPool;
         }
     }
