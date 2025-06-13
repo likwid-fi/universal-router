@@ -83,7 +83,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
             } else if (pool == PoolTypes.UNISWAP_V3 || pool == PoolTypes.PANCAKESWAP_V3) {
                 (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
-                uint24 fee = abi.decode(params[pool], (uint24));
+                uint24 fee = abi.decode(params[poolIndex], (uint24));
                 fees[poolIndex] = fee;
                 IV3Quoter.QuoteExactInputSingleParams memory quoteParams = IV3Quoter.QuoteExactInputSingleParams({
                     tokenIn: tokenIn,
@@ -191,7 +191,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
             } else if (pool == PoolTypes.UNISWAP_V3 || pool == PoolTypes.PANCAKESWAP_V3) {
                 (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
-                uint24 fee = abi.decode(params[pool], (uint24));
+                uint24 fee = abi.decode(params[poolIndex], (uint24));
                 fees[poolIndex] = fee;
                 IV3Quoter.QuoteExactOutputSingleParams memory quoteParams = IV3Quoter.QuoteExactOutputSingleParams({
                     tokenIn: tokenIn,

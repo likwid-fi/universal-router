@@ -166,4 +166,186 @@ contract MixedQuoterTest is Test {
         assertEq(fees[1], 3000);
         assertGt(gasEstimate, 20000);
     }
+
+    function test_pancakeswap_v3_quoteMixedExactInput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_V3));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        params[0] = abi.encode(fee);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
+
+        console.log("Amount out:", amountOut);
+        assertGt(amountOut, 0.001 ether);
+        assertEq(fees[0], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_pancakeswap_v3_quoteMixedExactOutput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_V3));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        params[0] = abi.encode(fee);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 1543200926235022);
+
+        console.log("Amount in:", amountIn);
+        assertGt(amountIn, 0.9 ether);
+        assertEq(fees[0], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_uniswap_v3_quoteMixedExactInput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        params[0] = abi.encode(fee);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
+
+        console.log("Amount out:", amountOut);
+        assertGt(amountOut, 0.001 ether);
+        assertEq(fees[0], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_uniswap_v3_quoteMixedExactOutput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        params[0] = abi.encode(fee);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 1543200926235022);
+
+        console.log("Amount in:", amountIn);
+        assertGt(amountIn, 0.9 ether);
+        assertEq(fees[0], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_mixed_v2_v3_quoteMixedExactInput01() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](2);
+        uint24 fee = 500; // 0.05% fee tier
+        params[1] = abi.encode(fee);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
+
+        console.log("Amount out:", amountOut);
+        assertGt(amountOut, 0.5 ether);
+        assertLt(amountOut, 1 ether);
+        assertEq(fees[0], 3000);
+        assertEq(fees[1], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_mixed_v2_v3_quoteMixedExactInput02() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](2);
+        uint24 fee = 500; // 0.05% fee tier
+        params[1] = abi.encode(fee);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
+
+        console.log("Amount out:", amountOut);
+        assertGt(amountOut, 0.5 ether);
+        assertLt(amountOut, 1 ether);
+        assertEq(fees[0], 2500);
+        assertEq(fees[1], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_mixed_v2_v3_quoteMixedExactOutput01() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](2);
+        uint24 fee = 500; // 0.05% fee tier
+        params[1] = abi.encode(fee);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 1 ether);
+
+        console.log("Amount in:", amountIn);
+        assertGt(amountIn, 1 ether);
+        assertEq(fees[0], 3000);
+        assertEq(fees[1], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_mixed_v2_v3_quoteMixedExactOutput02() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(WETH9);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V3));
+
+        bytes[] memory params = new bytes[](2);
+        uint24 fee = 500; // 0.05% fee tier
+        params[1] = abi.encode(fee);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 1 ether);
+
+        console.log("Amount in:", amountIn);
+        assertGt(amountIn, 1 ether);
+        assertEq(fees[0], 2500);
+        assertEq(fees[1], 500);
+        assertGt(gasEstimate, 10000);
+    }
 }
