@@ -3,14 +3,16 @@ pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {ActionConstants} from "infinity-periphery/src/libraries/ActionConstants.sol";
 
-import {IPermit2} from "permit2/src/interfaces/IPermit2.sol";
+import {IMixedQuoter} from "../src/interfaces/IMixedQuoter.sol";
 import {MixedQuoter} from "../src/MixedQuoter.sol";
 import {ISwapV2Factory} from "../src/modules/v2/interfaces/ISwapV2Factory.sol";
 import {ISwapV2Pair} from "../src/modules/v2/interfaces/ISwapV2Pair.sol";
 import {Constants} from "../src/libraries/Constants.sol";
 import {PoolTypes} from "../src/libraries/PoolTypes.sol";
+import {Currency} from "../src/types/Currency.sol";
+import {PoolKey, PoolKeyInfinity} from "../src/types/PoolKey.sol";
+import {PoolId} from "../src/types/PoolId.sol";
 import {QuoterParameters} from "../src/base/QuoterImmutables.sol";
 
 contract MixedQuoterTest is Test {
@@ -346,6 +348,68 @@ contract MixedQuoterTest is Test {
         assertGt(amountIn, 1 ether);
         assertEq(fees[0], 2500);
         assertEq(fees[1], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_uniswap_v4_quoteMixedExactInput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(0);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V4));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        PoolKey memory poolKey = PoolKey({
+            currency0: Currency.wrap(address(0)),
+            currency1: Currency.wrap(address(USDT)),
+            fee: fee,
+            tickSpacing: 10,
+            hooks: address(0)
+        });
+        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        IMixedQuoter.QuoteMixedV4ExactInputSingleParams memory v4Params =
+            IMixedQuoter.QuoteMixedV4ExactInputSingleParams({poolKey: poolKey, hookData: ""});
+        params[0] = abi.encode(v4Params);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
+
+        console.log("Amount out:", amountOut);
+        assertGt(amountOut, 0.001 ether);
+        assertEq(fees[0], 500);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_uniswap_v4_quoteMixedExactOutput() public {
+        address[] memory paths = new address[](2);
+        paths[0] = address(USDT);
+        paths[1] = address(0);
+
+        bytes memory pools = new bytes(1);
+        pools[0] = bytes1(uint8(PoolTypes.UNISWAP_V4));
+
+        bytes[] memory params = new bytes[](1);
+        uint24 fee = 500; // 0.05% fee tier
+        PoolKey memory poolKey = PoolKey({
+            currency0: Currency.wrap(address(0)),
+            currency1: Currency.wrap(address(USDT)),
+            fee: fee,
+            tickSpacing: 10,
+            hooks: address(0)
+        });
+        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        IMixedQuoter.QuoteMixedV4ExactInputSingleParams memory v4Params =
+            IMixedQuoter.QuoteMixedV4ExactInputSingleParams({poolKey: poolKey, hookData: ""});
+        params[0] = abi.encode(v4Params);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 1533043257945944);
+
+        console.log("Amount in:", amountIn);
+        assertGt(amountIn, 0.9 ether);
+        assertEq(fees[0], 500);
         assertGt(gasEstimate, 10000);
     }
 }

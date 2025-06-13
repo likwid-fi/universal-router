@@ -113,7 +113,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
-
+                fees[poolIndex] = v4Params.poolKey.fee;
                 IV4Quoter.QuoteExactSingleParams memory swapParams = IV4Quoter.QuoteExactSingleParams({
                     poolKey: v4Params.poolKey,
                     zeroForOne: zeroForOne,
@@ -138,7 +138,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (tokenIn, tokenOut) = convertWETHToInfiNativeCurrency(infiParams.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkInfiPoolKeyCurrency(infiParams.poolKey, zeroForOne, tokenIn, tokenOut);
-
+                fees[poolIndex] = infiParams.poolKey.fee;
                 IInfinityQuoter.QuoteExactSingleParams memory swapParams = IInfinityQuoter.QuoteExactSingleParams({
                     poolKey: infiParams.poolKey,
                     zeroForOne: zeroForOne,
@@ -221,7 +221,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
-
+                fees[poolIndex] = v4Params.poolKey.fee;
                 IV4Quoter.QuoteExactSingleParams memory swapParams = IV4Quoter.QuoteExactSingleParams({
                     poolKey: v4Params.poolKey,
                     zeroForOne: zeroForOne,
@@ -246,7 +246,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (tokenIn, tokenOut) = convertWETHToInfiNativeCurrency(infiParams.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkInfiPoolKeyCurrency(infiParams.poolKey, zeroForOne, tokenIn, tokenOut);
-
+                fees[poolIndex] = infiParams.poolKey.fee;
                 IInfinityQuoter.QuoteExactSingleParams memory swapParams = IInfinityQuoter.QuoteExactSingleParams({
                     poolKey: infiParams.poolKey,
                     zeroForOne: zeroForOne,
