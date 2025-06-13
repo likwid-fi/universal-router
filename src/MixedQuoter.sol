@@ -85,26 +85,17 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
                 uint24 fee = abi.decode(params[pool], (uint24));
                 fees[poolIndex] = fee;
+                IV3Quoter.QuoteExactInputSingleParams memory quoteParams = IV3Quoter.QuoteExactInputSingleParams({
+                    tokenIn: tokenIn,
+                    tokenOut: tokenOut,
+                    amountIn: amountIn,
+                    fee: fee,
+                    sqrtPriceLimitX96: 0
+                });
                 if (pool == PoolTypes.UNISWAP_V3) {
-                    (amountOut,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactInputSingle(
-                        IV3Quoter.QuoteExactInputSingleParams({
-                            tokenIn: tokenIn,
-                            tokenOut: tokenOut,
-                            amountIn: amountIn,
-                            fee: fee,
-                            sqrtPriceLimitX96: 0
-                        })
-                    );
+                    (amountOut,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactInputSingle(quoteParams);
                 } else {
-                    (amountOut,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactInputSingle(
-                        IV3Quoter.QuoteExactInputSingleParams({
-                            tokenIn: tokenIn,
-                            tokenOut: tokenOut,
-                            amountIn: amountIn,
-                            fee: fee,
-                            sqrtPriceLimitX96: 0
-                        })
-                    );
+                    (amountOut,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactInputSingle(quoteParams);
                 }
             } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
                 (amountOut, gasEstimateForCurrentPool) = quoteExactInputSingleStable(
@@ -177,7 +168,8 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         if (numPools == 0) revert NoPoolTypes();
         if (numPools != params.length || numPools != paths.length - 1) revert InputLengthMismatch();
         fees = new uint256[](numPools);
-        for (uint256 poolIndex = numPools - 1; poolIndex >= 0; poolIndex--) {
+        for (uint256 lastIndex = numPools; lastIndex > 0; lastIndex--) {
+            uint256 poolIndex = lastIndex - 1;
             uint256 gasEstimateForCurrentPool = gasleft();
             address tokenIn = paths[poolIndex];
             address tokenOut = paths[poolIndex + 1];
@@ -191,36 +183,27 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 path[1] = tokenOut;
                 if (pool == PoolTypes.UNISWAP_V2) {
                     fees[poolIndex] = 3000; // Uniswap V2 uses a fixed fee of 0.3%
-                    amountIn = UNISWAP_V2_QUOTER.getAmountsIn(amountOut, path)[1];
+                    amountIn = UNISWAP_V2_QUOTER.getAmountsIn(amountOut, path)[0];
                 } else {
                     fees[poolIndex] = 2500; // PancakeSwap V2 uses a fixed fee of 0.25%
-                    amountIn = PANCAKESWAP_V2_QUOTER.getAmountsIn(amountOut, path)[1];
+                    amountIn = PANCAKESWAP_V2_QUOTER.getAmountsIn(amountOut, path)[0];
                 }
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
             } else if (pool == PoolTypes.UNISWAP_V3 || pool == PoolTypes.PANCAKESWAP_V3) {
                 (tokenIn, tokenOut) = convertNativeToWETH(tokenIn, tokenOut);
                 uint24 fee = abi.decode(params[pool], (uint24));
                 fees[poolIndex] = fee;
+                IV3Quoter.QuoteExactOutputSingleParams memory quoteParams = IV3Quoter.QuoteExactOutputSingleParams({
+                    tokenIn: tokenIn,
+                    tokenOut: tokenOut,
+                    amount: amountOut,
+                    fee: fee,
+                    sqrtPriceLimitX96: 0
+                });
                 if (pool == PoolTypes.UNISWAP_V3) {
-                    (amountIn,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactOutputSingle(
-                        IV3Quoter.QuoteExactOutputSingleParams({
-                            tokenIn: tokenIn,
-                            tokenOut: tokenOut,
-                            amount: amountOut,
-                            fee: fee,
-                            sqrtPriceLimitX96: 0
-                        })
-                    );
+                    (amountIn,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactOutputSingle(quoteParams);
                 } else {
-                    (amountIn,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactOutputSingle(
-                        IV3Quoter.QuoteExactOutputSingleParams({
-                            tokenIn: tokenIn,
-                            tokenOut: tokenOut,
-                            amount: amountOut,
-                            fee: fee,
-                            sqrtPriceLimitX96: 0
-                        })
-                    );
+                    (amountIn,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactOutputSingle(quoteParams);
                 }
             } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
                 (amountOut, gasEstimateForCurrentPool) = quoteExactOutputSingleStable(

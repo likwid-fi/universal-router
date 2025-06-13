@@ -24,7 +24,6 @@ abstract contract PancakeSwapV2Test is Test {
     UniversalRouter public router;
 
     function setUp() public {
-        // BSC: May-09-2024 03:05:23 AM +UTC
         vm.createSelectFork(vm.envString("FORK_URL"));
         setUpTokens();
 
