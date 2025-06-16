@@ -122,13 +122,13 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 });
                 (amountOut, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactInputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
-                PoolKey memory poolKey = abi.decode(params[poolIndex], (PoolKey));
+                PoolId poolId = abi.decode(params[poolIndex], (PoolId));
+                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
+                PoolKey memory poolKey = status.key;
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(poolKey, zeroForOne, tokenIn, tokenOut);
-                PoolId poolId = poolKey.toId();
                 uint24 fee = poolKey.fee;
-                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
                 (amountOut, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountOut(status, zeroForOne, amountIn);
                 fees[poolIndex] = fee;
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
@@ -230,13 +230,13 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 });
                 (amountIn, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactOutputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
-                PoolKey memory poolKey = abi.decode(params[poolIndex], (PoolKey));
+                PoolId poolId = abi.decode(params[poolIndex], (PoolId));
+                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
+                PoolKey memory poolKey = status.key;
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(poolKey, zeroForOne, tokenIn, tokenOut);
-                PoolId poolId = poolKey.toId();
                 uint24 fee = poolKey.fee;
-                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
                 (amountIn, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountIn(status, zeroForOne, amountOut);
                 fees[poolIndex] = fee;
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
