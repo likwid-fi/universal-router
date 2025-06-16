@@ -206,11 +206,11 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                     (amountIn,,, gasEstimateForCurrentPool) = PANCAKESWAP_V3_QUOTER.quoteExactOutputSingle(quoteParams);
                 }
             } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
-                (amountOut, gasEstimateForCurrentPool) = quoteExactOutputSingleStable(
+                (amountIn, gasEstimateForCurrentPool) = quoteExactOutputSingleStable(
                     QuoteExactOutputSingleStableParams({
                         tokenIn: tokenIn,
                         tokenOut: tokenOut,
-                        amountOut: amountIn,
+                        amountOut: amountOut,
                         flag: 2
                     })
                 );
