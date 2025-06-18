@@ -13,3 +13,7 @@ docs/
 # Dotenv file
 .env
 .vscode
+
+# Test files
+script/LocalTest.s.sol
+broadcast/LocalTest.s.sol

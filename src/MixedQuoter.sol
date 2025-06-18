@@ -108,8 +108,8 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 );
                 fees[poolIndex] = 0;
             } else if (pool == PoolTypes.UNISWAP_V4) {
-                QuoteMixedV4ExactInputSingleParams memory v4Params =
-                    abi.decode(params[poolIndex], (QuoteMixedV4ExactInputSingleParams));
+                QuoteMixedV4ExactSingleParams memory v4Params =
+                    abi.decode(params[poolIndex], (QuoteMixedV4ExactSingleParams));
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
@@ -131,10 +131,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 uint24 fee = poolKey.fee;
                 (amountOut, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountOut(status, zeroForOne, amountIn);
                 fees[poolIndex] = fee;
-                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
+                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft() + 51_0000;
             } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL || pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
-                QuoteMixedInfiExactInputSingleParams memory infiParams =
-                    abi.decode(params[poolIndex], (QuoteMixedInfiExactInputSingleParams));
+                QuoteMixedInfiExactSingleParams memory infiParams =
+                    abi.decode(params[poolIndex], (QuoteMixedInfiExactSingleParams));
                 (tokenIn, tokenOut) = convertWETHToInfiNativeCurrency(infiParams.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkInfiPoolKeyCurrency(infiParams.poolKey, zeroForOne, tokenIn, tokenOut);
@@ -216,8 +216,8 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 );
                 fees[poolIndex] = 0;
             } else if (pool == PoolTypes.UNISWAP_V4) {
-                QuoteMixedV4ExactInputSingleParams memory v4Params =
-                    abi.decode(params[poolIndex], (QuoteMixedV4ExactInputSingleParams));
+                QuoteMixedV4ExactSingleParams memory v4Params =
+                    abi.decode(params[poolIndex], (QuoteMixedV4ExactSingleParams));
                 (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
@@ -239,10 +239,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 uint24 fee = poolKey.fee;
                 (amountIn, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountIn(status, zeroForOne, amountOut);
                 fees[poolIndex] = fee;
-                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
+                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft() + 51_0000;
             } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL || pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
-                QuoteMixedInfiExactInputSingleParams memory infiParams =
-                    abi.decode(params[poolIndex], (QuoteMixedInfiExactInputSingleParams));
+                QuoteMixedInfiExactSingleParams memory infiParams =
+                    abi.decode(params[poolIndex], (QuoteMixedInfiExactSingleParams));
                 (tokenIn, tokenOut) = convertWETHToInfiNativeCurrency(infiParams.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
                 checkInfiPoolKeyCurrency(infiParams.poolKey, zeroForOne, tokenIn, tokenOut);

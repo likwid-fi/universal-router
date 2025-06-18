@@ -4,12 +4,12 @@ pragma solidity 0.8.26;
 import {PoolKey, PoolKeyInfinity} from "../types/PoolKey.sol";
 
 interface IMixedQuoter {
-    struct QuoteMixedInfiExactInputSingleParams {
+    struct QuoteMixedInfiExactSingleParams {
         PoolKeyInfinity poolKey;
         bytes hookData;
     }
 
-    struct QuoteMixedV4ExactInputSingleParams {
+    struct QuoteMixedV4ExactSingleParams {
         PoolKey poolKey;
         bytes hookData;
     }
