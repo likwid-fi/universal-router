@@ -41,7 +41,13 @@ library PathKeyLibrary {
             currencyIn < currencyOut ? (currencyIn, currencyOut) : (currencyOut, currencyIn);
 
         zeroForOne = currencyIn == currency0;
-        poolKey = PoolKey(currency0, currency1, params.fee, params.tickSpacing, params.hooks);
+        poolKey = PoolKey({
+            currency0: currency0,
+            currency1: currency1,
+            fee: params.fee,
+            tickSpacing: params.tickSpacing,
+            hooks: params.hooks
+        });
     }
 
     /// @notice Get the pool and swap direction for a given PathKey
@@ -59,6 +65,13 @@ library PathKeyLibrary {
             : (params.intermediateCurrency, currencyIn);
 
         zeroForOne = currencyIn == currency0;
-        poolKey = PoolKeyInfinity(currency0, currency1, params.hooks, params.poolManager, params.fee, params.parameters);
+        poolKey = PoolKeyInfinity({
+            currency0: currency0,
+            currency1: currency1,
+            hooks: params.hooks,
+            poolManager: params.poolManager,
+            fee: params.fee,
+            parameters: params.parameters
+        });
     }
 }

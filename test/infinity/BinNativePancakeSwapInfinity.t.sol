@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std/Test.sol";
 import {IAllowanceTransfer} from "permit2/src/interfaces/IAllowanceTransfer.sol";
 import {WETH} from "solmate/src/tokens/WETH.sol";
 import {IWETH9} from "infinity-periphery/src/interfaces/external/IWETH9.sol";
@@ -22,13 +21,9 @@ import {Actions} from "infinity-periphery/src/libraries/Actions.sol";
 import {IBinRouterBase} from "infinity-periphery/src/pool-bin/interfaces/IBinRouterBase.sol";
 import {BinLiquidityHelper} from "infinity-periphery/test/pool-bin/helper/BinLiquidityHelper.sol";
 import {IBinPositionManager} from "infinity-periphery/src/pool-bin/interfaces/IBinPositionManager.sol";
-import {PathKey} from "infinity-periphery/src/libraries/PathKey.sol";
-import {BinPool} from "infinity-core/src/pool-bin/libraries/BinPool.sol";
 
 import {BasePancakeSwapInfinity} from "./BasePancakeSwapInfinity.sol";
 import {UniversalRouter} from "../../src/UniversalRouter.sol";
-import {IUniversalRouter} from "../../src/interfaces/IUniversalRouter.sol";
-import {Constants} from "../../src/libraries/Constants.sol";
 import {Commands} from "../../src/libraries/Commands.sol";
 import {RouterParameters} from "../../src/base/RouterImmutables.sol";
 

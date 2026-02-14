@@ -6,9 +6,6 @@ import {ERC20} from "solmate/src/tokens/ERC20.sol";
 
 import {IMixedQuoter} from "../src/interfaces/IMixedQuoter.sol";
 import {MixedQuoter} from "../src/MixedQuoter.sol";
-import {ISwapV2Factory} from "../src/modules/v2/interfaces/ISwapV2Factory.sol";
-import {ISwapV2Pair} from "../src/modules/v2/interfaces/ISwapV2Pair.sol";
-import {Constants} from "../src/libraries/Constants.sol";
 import {PoolTypes} from "../src/libraries/PoolTypes.sol";
 import {Currency} from "../src/types/Currency.sol";
 import {PoolKey, PoolKeyInfinity} from "../src/types/PoolKey.sol";

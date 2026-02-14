@@ -6,7 +6,6 @@ import {SafeCast} from "./SafeCast.sol";
 import {ISwapV3Pool} from "./interfaces/ISwapV3Pool.sol";
 import {ISwapV3Callback} from "./interfaces/ISwapV3Callback.sol";
 import {BytesLib} from "../../libraries/BytesLib.sol";
-import {Constants} from "../../libraries/Constants.sol";
 import {UniversalRouterHelper} from "../../libraries/UniversalRouterHelper.sol";
 import {RouterImmutables} from "../../base/RouterImmutables.sol";
 import {Payments} from "../Payments.sol";
@@ -168,13 +167,14 @@ abstract contract V3SwapRouter is RouterImmutables, Payments, ISwapV3Callback {
         zeroForOne = isExactIn ? tokenIn < tokenOut : tokenOut < tokenIn;
 
         (amount0Delta, amount1Delta) = ISwapV3Pool(
-            UniversalRouterHelper.getPoolAddress(factory, tokenIn, tokenOut, fee)
-        ).swap(
-            recipient,
-            zeroForOne,
-            amount,
-            (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
-            abi.encode(path, payer)
-        );
+                UniversalRouterHelper.getPoolAddress(factory, tokenIn, tokenOut, fee)
+            )
+            .swap(
+                recipient,
+                zeroForOne,
+                amount,
+                (zeroForOne ? MIN_SQRT_RATIO + 1 : MAX_SQRT_RATIO - 1),
+                abi.encode(path, payer)
+            );
     }
 }

@@ -7,7 +7,6 @@ import {RouterParameters, RouterImmutables} from "./base/RouterImmutables.sol";
 import {InfinitySwapRouter} from "./modules/infinity/InfinitySwapRouter.sol";
 import {V4SwapRouter} from "./modules/v4/V4SwapRouter.sol";
 import {Commands} from "./libraries/Commands.sol";
-import {Constants} from "./libraries/Constants.sol";
 import {IUniversalRouter} from "./interfaces/IUniversalRouter.sol";
 import {StableSwapRouter} from "./modules/pancakeswap/StableSwapRouter.sol";
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
@@ -20,9 +19,13 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
         V4SwapRouter(params.uniswapPoolManager)
     {}
 
-    modifier checkDeadline(uint256 deadline) {
-        if (block.timestamp > deadline) revert TransactionDeadlinePassed();
+    modifier ensure(uint256 deadline) {
+        _ensure(deadline);
         _;
+    }
+
+    function _ensure(uint256 deadline) internal view {
+        if (block.timestamp > deadline) revert TransactionDeadlinePassed();
     }
 
     /// @notice To receive ETH from WETH
@@ -36,7 +39,7 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
     function execute(bytes calldata commands, bytes[] calldata inputs, uint256 deadline)
         external
         payable
-        checkDeadline(deadline)
+        ensure(deadline)
     {
         execute(commands, inputs);
     }

@@ -7,8 +7,6 @@ import {BipsLibrary} from "infinity-periphery/src/libraries/BipsLibrary.sol";
 import {RouterImmutables} from "../base/RouterImmutables.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {ERC721} from "solmate/src/tokens/ERC721.sol";
-import {ERC1155} from "solmate/src/tokens/ERC1155.sol";
 
 /// @title Payments contract
 /// @notice Performs various operations around the payment of ETH and tokens

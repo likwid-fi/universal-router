@@ -1,0 +1,20 @@
+{
+  "lib/forge-std": {
+    "rev": "77041d2ce690e692d6e03cc812b57d1ddaa4d505"
+  },
+  "lib/infinity-periphery": {
+    "rev": "41dc95b2e435903c8951a9c79c5d8575af3ed039"
+  },
+  "lib/likwid-margin": {
+    "rev": "cb6fc73a3b99c871aa3b9195f4f3a0db2676359b"
+  },
+  "lib/openzeppelin-contracts": {
+    "rev": "e4f70216d759d8e6a64144a9e1f7bbeed78e7079"
+  },
+  "lib/solmate": {
+    "rev": "c93f7716c9909175d45f6ef80a34a650e2d24e56"
+  },
+  "lib/v4-periphery": {
+    "rev": "ad04c9f24a170accf5ea1b2836bbafd514537ca6"
+  }
+}

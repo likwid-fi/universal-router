@@ -6,4 +6,7 @@ solc = "0.8.26"
 evm_version = "cancun"
 via_ir = true
 
+[lint]
+exclude_lints = ["unsafe-typecast","mixed-case-variable","asm-keccak256","mixed-case-function","erc20-unchecked-transfer","screaming-snake-case-immutable","unwrapped-modifier-logic"]
+
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

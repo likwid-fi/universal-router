@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {ActionConstants} from "infinity-periphery/src/libraries/ActionConstants.sol";
 import {Actions} from "@uniswap/v4-periphery/src/libraries/Actions.sol";
 import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
@@ -83,11 +82,7 @@ abstract contract UniswapV4Test is Test {
         bytes[] memory params = new bytes[](3);
         params[0] = abi.encode(
             IV4Router.ExactInputSingleParams({
-                poolKey: key01,
-                zeroForOne: true,
-                amountIn: uint128(AMOUNT),
-                amountOutMinimum: 0,
-                hookData: bytes("")
+                poolKey: key01, zeroForOne: true, amountIn: uint128(AMOUNT), amountOutMinimum: 0, hookData: bytes("")
             })
         );
         params[1] = abi.encode(key01.currency0, AMOUNT);

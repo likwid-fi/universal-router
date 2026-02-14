@@ -8,18 +8,13 @@ import {BaseActionsRouterV4} from "../modules/v4/base/BaseActionsRouter.sol";
 import {InfinitySwapRouter} from "../modules/infinity/InfinitySwapRouter.sol";
 import {StableSwapRouter} from "../modules/pancakeswap/StableSwapRouter.sol";
 import {Payments} from "../modules/Payments.sol";
-import {RouterImmutables} from "../base/RouterImmutables.sol";
 import {BytesLib} from "../libraries/BytesLib.sol";
 import {Commands} from "../libraries/Commands.sol";
 import {Lock} from "./Lock.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
-import {IAllowanceTransfer} from "permit2/src/interfaces/IAllowanceTransfer.sol";
 import {ActionConstants} from "infinity-periphery/src/libraries/ActionConstants.sol";
 import {BaseActionsRouter} from "infinity-periphery/src/base/BaseActionsRouter.sol";
 import {CalldataDecoder} from "infinity-periphery/src/libraries/CalldataDecoder.sol";
-import {PoolKey} from "infinity-core/src/types/PoolKey.sol";
-import {ICLPoolManager} from "infinity-core/src/pool-cl/interfaces/ICLPoolManager.sol";
-import {IBinPoolManager} from "infinity-core/src/pool-bin/interfaces/IBinPoolManager.sol";
 
 /// @title Decodes and Executes Commands
 /// @notice Called by the UniversalRouter contract to efficiently decode and execute a singular command

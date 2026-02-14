@@ -120,9 +120,10 @@ abstract contract V4Router is IV4Router, BaseActionsRouterV4, DeltaResolver {
             amountOut =
                 _getFullDebt(params.zeroForOne ? params.poolKey.currency1 : params.poolKey.currency0).toUint128();
         }
-        uint128 amountIn = (
-            uint256(-int256(_swap(params.poolKey, params.zeroForOne, int256(uint256(amountOut)), params.hookData)))
-        ).toUint128();
+        uint128 amountIn = (uint256(
+                -int256(_swap(params.poolKey, params.zeroForOne, int256(uint256(amountOut)), params.hookData))
+            ))
+        .toUint128();
         if (amountIn > params.amountInMaximum) revert V4TooMuchRequested(params.amountInMaximum, amountIn);
     }
 
@@ -144,7 +145,7 @@ abstract contract V4Router is IV4Router, BaseActionsRouterV4, DeltaResolver {
                 (PoolKey memory poolKey, bool oneForZero) = pathKey.getPoolAndSwapDirection(currencyOut);
                 // The output delta will always be negative, except for when interacting with certain hook pools
                 amountIn = (uint256(-int256(_swap(poolKey, !oneForZero, int256(uint256(amountOut)), pathKey.hookData))))
-                    .toUint128();
+                .toUint128();
 
                 amountOut = amountIn;
                 currencyOut = pathKey.intermediateCurrency;
@@ -161,9 +162,11 @@ abstract contract V4Router is IV4Router, BaseActionsRouterV4, DeltaResolver {
         unchecked {
             BalanceDelta delta = poolManager.swap(
                 poolKey,
-                SwapParams(
-                    zeroForOne, amountSpecified, zeroForOne ? TickMath.MIN_SQRT_PRICE + 1 : TickMath.MAX_SQRT_PRICE - 1
-                ),
+                SwapParams({
+                    zeroForOne: zeroForOne,
+                    amountSpecified: amountSpecified,
+                    sqrtPriceLimitX96: zeroForOne ? TickMath.MIN_SQRT_PRICE + 1 : TickMath.MAX_SQRT_PRICE - 1
+                }),
                 hookData
             );
 
