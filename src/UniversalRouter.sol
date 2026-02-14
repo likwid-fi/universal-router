@@ -6,6 +6,7 @@ import {Dispatcher} from "./base/Dispatcher.sol";
 import {RouterParameters, RouterImmutables} from "./base/RouterImmutables.sol";
 import {InfinitySwapRouter} from "./modules/infinity/InfinitySwapRouter.sol";
 import {V4SwapRouter} from "./modules/v4/V4SwapRouter.sol";
+import {LikwidV2SwapRouter} from "./modules/likwid/LikwidV2SwapRouter.sol";
 import {Commands} from "./libraries/Commands.sol";
 import {IUniversalRouter} from "./interfaces/IUniversalRouter.sol";
 import {StableSwapRouter} from "./modules/pancakeswap/StableSwapRouter.sol";
@@ -17,6 +18,7 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
         StableSwapRouter(params.stableFactory, params.stableInfo)
         InfinitySwapRouter(params.infiVault, params.infiClPoolManager, params.infiBinPoolManager)
         V4SwapRouter(params.uniswapPoolManager)
+        LikwidV2SwapRouter(params.likwidVault)
     {}
 
     modifier ensure(uint256 deadline) {

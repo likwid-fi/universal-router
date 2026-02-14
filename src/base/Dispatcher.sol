@@ -3,8 +3,10 @@ pragma solidity ^0.8.24;
 
 import {V2SwapRouter} from "../modules/v2/V2SwapRouter.sol";
 import {V3SwapRouter} from "../modules/v3/V3SwapRouter.sol";
-import {V4SwapRouter} from "../modules/v4/V4SwapRouter.sol";
 import {BaseActionsRouterV4} from "../modules/v4/base/BaseActionsRouter.sol";
+import {V4SwapRouter} from "../modules/v4/V4SwapRouter.sol";
+import {BaseActionsRouterLikwidV2} from "../modules/likwid/base/BaseActionsRouter.sol";
+import {LikwidV2SwapRouter} from "../modules/likwid/LikwidV2SwapRouter.sol";
 import {InfinitySwapRouter} from "../modules/infinity/InfinitySwapRouter.sol";
 import {StableSwapRouter} from "../modules/pancakeswap/StableSwapRouter.sol";
 import {Payments} from "../modules/Payments.sol";
@@ -25,6 +27,7 @@ abstract contract Dispatcher is
     StableSwapRouter,
     InfinitySwapRouter,
     V4SwapRouter,
+    LikwidV2SwapRouter,
     Lock
 {
     using BytesLib for bytes;
@@ -32,6 +35,16 @@ abstract contract Dispatcher is
 
     error InvalidCommandType(uint256 commandType);
     error BalanceTooLow();
+    error NotRouter();
+
+    modifier onlyRouter() {
+        _onlyRouter();
+        _;
+    }
+
+    function _onlyRouter() internal view {
+        if (!(msg.sender == address(likwidVault) || msg.sender == address(poolManager))) revert NotRouter();
+    }
 
     /// @notice Executes encoded commands along with provided inputs.
     /// @param commands A set of concatenated commands, each 1 byte in length
@@ -45,6 +58,10 @@ abstract contract Dispatcher is
     }
 
     function msgSenderV4() public view override(BaseActionsRouterV4) returns (address) {
+        return _getLocker();
+    }
+
+    function msgSenderLikwidV2() public view override(BaseActionsRouterLikwidV2) returns (address) {
         return _getLocker();
     }
 
@@ -234,6 +251,10 @@ abstract contract Dispatcher is
                     _executeActionsV4(inputs);
                     return (success, output);
                     // This contract MUST be approved to spend the token since its going to be doing the call on the position manager
+                } else if (command == Commands.LIKWID_V2_SWAP) {
+                    _executeActionsLikwidV2(inputs);
+                    return (success, output);
+                    // This contract MUST be approved to spend the token since its going to be doing the call on the position manager
                 } else {
                     // placeholder area for commands 0x15-0x20
                     revert InvalidCommandType(command);
@@ -301,6 +322,16 @@ abstract contract Dispatcher is
             return address(this);
         } else {
             return recipient;
+        }
+    }
+
+    function unlockCallback(bytes calldata data) external onlyRouter returns (bytes memory) {
+        if (msg.sender == address(likwidVault)) {
+            // If the caller is the Likwid Vault, we route through the BaseActionsRouterLikwidV2 to ensure proper context
+            return _unlockCallbackLikwidV2(data);
+        } else {
+            // If the caller is not the Likwid Vault, we assume it's a call
+            return _unlockCallback(data);
         }
     }
 }

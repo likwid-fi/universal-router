@@ -81,7 +81,8 @@ contract BinPancakeSwapInfinityTest is BasePancakeSwapInfinity, BinLiquidityHelp
             infiBinPoolManager: address(poolManager),
             uniswapV2Factory: address(0),
             uniswapV3Factory: address(0),
-            uniswapPoolManager: address(0)
+            uniswapPoolManager: address(0),
+            likwidVault: address(0)
         });
         router = new UniversalRouter(params);
         _approveRouterForCurrency(alice, currency0, address(router));

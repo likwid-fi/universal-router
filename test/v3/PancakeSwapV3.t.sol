@@ -37,7 +37,8 @@ abstract contract PancakeSwapV3Test is Test {
             infiBinPoolManager: address(0),
             uniswapV2Factory: address(0),
             uniswapV3Factory: address(0),
-            uniswapPoolManager: address(0)
+            uniswapPoolManager: address(0),
+            likwidVault: address(0)
         });
         router = new UniversalRouter(params);
 

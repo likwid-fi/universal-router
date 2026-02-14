@@ -1,37 +1,48 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
-import {TransientStateLibrary} from "@uniswap/v4-core/src/libraries/TransientStateLibrary.sol";
-import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
 import {ActionConstants} from "@uniswap/v4-periphery/src/libraries/ActionConstants.sol";
-import {ImmutableState} from "@uniswap/v4-periphery/src/base/ImmutableState.sol";
+import {IVault} from "@likwid-fi/core/interfaces/IVault.sol";
+import {Currency} from "@likwid-fi/core/types/Currency.sol";
 
 /// @notice Abstract contract used to sync, send, and settle funds to the pool manager
 /// @dev Note that sync() is called before any erc-20 transfer in `settle`.
-abstract contract DeltaResolver is ImmutableState {
-    using TransientStateLibrary for IPoolManager;
-
+abstract contract DeltaResolver {
     /// @notice Emitted trying to settle a positive delta.
-    error DeltaNotPositiveV4(Currency currency);
+    error DeltaNotPositiveLikwidV2(Currency currency);
     /// @notice Emitted trying to take a negative delta.
-    error DeltaNotNegativeV4(Currency currency);
+    error DeltaNotNegativeLikwidV2(Currency currency);
     /// @notice Emitted when the contract does not have enough balance to wrap or unwrap.
-    error InsufficientBalanceV4();
+    error InsufficientBalanceLikwidV2();
 
-    constructor(IPoolManager _poolManager) ImmutableState(_poolManager) {}
+    IVault public immutable likwidVault;
 
-    /// @notice Take an amount of currency out of the PoolManager
+    /// @dev uint256 internal constant CURRENCY_DELTA = uint256(keccak256("CURRENCY_DELTA")) - 1;
+    uint256 internal constant CURRENCY_DELTA = 0xd9bd4e389ed8cbf1cf078cf6e39b899ba664e27ad65dbc00c572373981e91d5e;
+
+    /// @dev ref: https://docs.soliditylang.org/en/v0.8.24/internals/layout_in_storage.html#mappings-and-dynamic-arrays
+    /// simulating mapping index but with a single hash
+    /// save one keccak256 hash compared to built-in nested mapping
+    function _currencyDeltaSlot(Currency currency, address target) internal pure returns (bytes32 hashSlot) {
+        hashSlot = keccak256(abi.encode(currency, target, CURRENCY_DELTA));
+    }
+
+    function currencyDelta(Currency currency, address target) internal view returns (int256) {
+        bytes32 hashSlot = _currencyDeltaSlot(currency, target);
+        return int256(uint256(likwidVault.exttload(hashSlot)));
+    }
+
+    /// @notice Take an amount of currency out of the Vault
     /// @param currency Currency to take
     /// @param recipient Address to receive the currency
     /// @param amount Amount to take
     /// @dev Returns early if the amount is 0
     function _take(Currency currency, address recipient, uint256 amount) internal {
         if (amount == 0) return;
-        poolManager.take(currency, recipient, amount);
+        likwidVault.take(currency, recipient, amount);
     }
 
-    /// @notice Pay and settle a currency to the PoolManager
+    /// @notice Pay and settle a currency to the Vault
     /// @dev The implementing contract must ensure that the `payer` is a secure address
     /// @param currency Currency to settle
     /// @param payer Address of the payer
@@ -40,17 +51,17 @@ abstract contract DeltaResolver is ImmutableState {
     function _settle(Currency currency, address payer, uint256 amount) internal {
         if (amount == 0) return;
 
-        poolManager.sync(currency);
+        likwidVault.sync(currency);
         if (currency.isAddressZero()) {
-            poolManager.settle{value: amount}();
+            likwidVault.settle{value: amount}();
         } else {
             _pay(currency, payer, amount);
-            poolManager.settle();
+            likwidVault.settle();
         }
     }
 
-    /// @notice Abstract function for contracts to implement paying tokens to the poolManager
-    /// @dev The recipient of the payment should be the poolManager
+    /// @notice Abstract function for contracts to implement paying tokens to the Vault
+    /// @dev The recipient of the payment should be the Vault
     /// @param token The token to settle. This is known not to be the native currency
     /// @param payer The address who should pay tokens
     /// @param amount The number of tokens to send
@@ -60,9 +71,9 @@ abstract contract DeltaResolver is ImmutableState {
     /// @param currency Currency to get the delta for
     /// @return amount The amount owed by this contract as a uint256
     function _getFullDebt(Currency currency) internal view returns (uint256 amount) {
-        int256 _amount = poolManager.currencyDelta(address(this), currency);
+        int256 _amount = currencyDelta(currency, address(this));
         // If the amount is positive, it should be taken not settled.
-        if (_amount > 0) revert DeltaNotNegativeV4(currency);
+        if (_amount > 0) revert DeltaNotNegativeLikwidV2(currency);
         // Casting is safe due to limits on the total supply of a pool
         amount = uint256(-_amount);
     }
@@ -71,9 +82,9 @@ abstract contract DeltaResolver is ImmutableState {
     /// @param currency Currency to get the delta for
     /// @return amount The amount owed to this contract as a uint256
     function _getFullCredit(Currency currency) internal view returns (uint256 amount) {
-        int256 _amount = poolManager.currencyDelta(address(this), currency);
+        int256 _amount = currencyDelta(currency, address(this));
         // If the amount is negative, it should be settled not taken.
-        if (_amount < 0) revert DeltaNotPositiveV4(currency);
+        if (_amount < 0) revert DeltaNotPositiveLikwidV2(currency);
         amount = uint256(_amount);
     }
 
@@ -119,7 +130,7 @@ abstract contract DeltaResolver is ImmutableState {
             // note that we use the DEBT amount. Positive deltas can be taken and then wrapped.
             amount = _getFullDebt(outputCurrency);
         }
-        if (amount > balance) revert InsufficientBalanceV4();
+        if (amount > balance) revert InsufficientBalanceLikwidV2();
         return amount;
     }
 }

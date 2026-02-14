@@ -57,12 +57,8 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
         address[] calldata path,
         address payer
     ) internal {
-        uint24 fee;
-        if (factory == PANCAKESWAP_V2_FACTORY) {
-            fee = 25;
-        } else if (factory == UNISWAP_V2_FACTORY) {
-            fee = 30;
-        } else {
+        uint24 fee = V2FactoryToFee[factory];
+        if (fee == 0) {
             revert V2InvalidFactory();
         }
         address firstPair = UniversalRouterHelper.pairFor(factory, path[0], path[1]);
@@ -96,12 +92,8 @@ abstract contract V2SwapRouter is RouterImmutables, Payments {
         address[] calldata path,
         address payer
     ) internal {
-        uint24 fee;
-        if (factory == PANCAKESWAP_V2_FACTORY) {
-            fee = 25;
-        } else if (factory == UNISWAP_V2_FACTORY) {
-            fee = 30;
-        } else {
+        uint24 fee = V2FactoryToFee[factory];
+        if (fee == 0) {
             revert V2InvalidFactory();
         }
         (uint256 amountIn, address firstPair) = UniversalRouterHelper.getAmountInMultihop(factory, amountOut, path, fee);
