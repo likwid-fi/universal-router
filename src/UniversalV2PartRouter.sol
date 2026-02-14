@@ -2,24 +2,14 @@
 pragma solidity 0.8.26;
 
 // Command implementations
-import {Dispatcher} from "./base/Dispatcher.sol";
+import {DispatcherV2Part} from "./base/DispatcherV2Part.sol";
 import {RouterParameters, RouterImmutables} from "./base/RouterImmutables.sol";
-import {InfinitySwapRouter} from "./modules/infinity/InfinitySwapRouter.sol";
-import {V4SwapRouter} from "./modules/v4/V4SwapRouter.sol";
 import {LikwidV2SwapRouter} from "./modules/likwid/LikwidV2SwapRouter.sol";
 import {Commands} from "./libraries/Commands.sol";
 import {IUniversalRouter} from "./interfaces/IUniversalRouter.sol";
-import {StableSwapRouter} from "./modules/pancakeswap/StableSwapRouter.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 
-contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Pausable {
-    constructor(RouterParameters memory params)
-        RouterImmutables(params)
-        StableSwapRouter(params.stableFactory, params.stableInfo)
-        InfinitySwapRouter(params.infiVault, params.infiClPoolManager, params.infiBinPoolManager)
-        V4SwapRouter(params.uniswapPoolManager)
-        LikwidV2SwapRouter(params.likwidVault)
-    {}
+contract UniversalV2PartRouter is RouterImmutables, IUniversalRouter, DispatcherV2Part {
+    constructor(RouterParameters memory params) RouterImmutables(params) LikwidV2SwapRouter(params.likwidVault) {}
 
     modifier ensure(uint256 deadline) {
         _ensure(deadline);
@@ -32,8 +22,7 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
 
     /// @notice To receive ETH from WETH and refunds
     receive() external payable {
-        if (!(msg.sender == address(WETH9) || msg.sender == address(vault) || msg.sender == address(poolManager)
-                    || msg.sender == address(likwidVault))) {
+        if (!(msg.sender == address(WETH9) || msg.sender == address(likwidVault))) {
             revert InvalidEthSender();
         }
     }
@@ -47,13 +36,12 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
         execute(commands, inputs);
     }
 
-    /// @inheritdoc Dispatcher
+    /// @inheritdoc DispatcherV2Part
     function execute(bytes calldata commands, bytes[] calldata inputs)
         public
         payable
-        override
+        override(DispatcherV2Part)
         isNotLocked
-        whenNotPaused
     {
         bool success;
         bytes memory output;
@@ -76,19 +64,5 @@ contract UniversalRouter is RouterImmutables, IUniversalRouter, Dispatcher, Paus
 
     function successRequired(bytes1 command) internal pure returns (bool) {
         return command & Commands.FLAG_ALLOW_REVERT == 0;
-    }
-
-    /**
-     * @dev called by the owner to pause, triggers stopped state
-     */
-    function pause() external onlyOwner whenNotPaused {
-        _pause();
-    }
-
-    /**
-     * @dev called by the owner to unpause, returns to normal state
-     */
-    function unpause() external onlyOwner whenPaused {
-        _unpause();
     }
 }

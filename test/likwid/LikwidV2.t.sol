@@ -9,7 +9,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Currency} from "@likwid-fi/core/types/Currency.sol";
 import {PoolKey} from "@likwid-fi/core/types/PoolKey.sol";
 
-import {UniversalRouter} from "../../src/UniversalRouter.sol";
+import {UniversalV2PartRouter} from "../../src/UniversalV2PartRouter.sol";
 import {ILikwidV2Router} from "../../src/modules/likwid/interfaces/ILikwidV2Router.sol";
 import {Constants} from "../../src/libraries/Constants.sol";
 import {Commands} from "../../src/libraries/Commands.sol";
@@ -26,7 +26,7 @@ abstract contract LikwidV2Test is Test {
     address constant FROM = address(1234);
     address constant LIKWID_VAULT = 0x065d449ec9D139740343990B7E1CF05fA830e4Ba;
 
-    UniversalRouter public router;
+    UniversalV2PartRouter public router;
     PoolKey public key01;
 
     function setUp() public {
@@ -46,7 +46,7 @@ abstract contract LikwidV2Test is Test {
             uniswapPoolManager: address(0),
             likwidVault: LIKWID_VAULT
         });
-        router = new UniversalRouter(params);
+        router = new UniversalV2PartRouter(params);
 
         vm.startPrank(FROM);
         deal(FROM, BALANCE);
