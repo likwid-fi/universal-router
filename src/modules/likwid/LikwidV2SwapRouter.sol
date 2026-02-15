@@ -2,8 +2,8 @@
 pragma solidity 0.8.26;
 
 import {Actions} from "@uniswap/v4-periphery/src/libraries/Actions.sol";
-import {ActionConstants} from "@uniswap/v4-periphery/src/libraries/ActionConstants.sol";
-import {BipsLibrary} from "@uniswap/v4-periphery/src/libraries/BipsLibrary.sol";
+import {ActionConstants} from "../../libraries/ActionConstants.sol";
+import {BipsLibrary} from "../../libraries/BipsLibrary.sol";
 import {IVault} from "@likwid-fi/core/interfaces/IVault.sol";
 import {BalanceDelta} from "@likwid-fi/core/types/BalanceDelta.sol";
 import {PoolKey} from "@likwid-fi/core/types/PoolKey.sol";

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {CalldataDecoder} from "@uniswap/v4-periphery/src/libraries/CalldataDecoder.sol";
-import {ActionConstants} from "@uniswap/v4-periphery/src/libraries/ActionConstants.sol";
+import {ActionConstants} from "../../../libraries/ActionConstants.sol";
 
 import {DeltaResolver} from "./DeltaResolver.sol";
 

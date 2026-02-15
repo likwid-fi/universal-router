@@ -10,7 +10,6 @@ import {Commands} from "../libraries/Commands.sol";
 import {Lock} from "./Lock.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
 import {ActionConstants} from "infinity-periphery/src/libraries/ActionConstants.sol";
-import {BaseActionsRouter} from "infinity-periphery/src/base/BaseActionsRouter.sol";
 import {CalldataDecoder} from "infinity-periphery/src/libraries/CalldataDecoder.sol";
 
 /// @title Decodes and Executes Commands

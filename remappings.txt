@@ -2,6 +2,8 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 solmate/=lib/solmate
 infinity-periphery/=lib/infinity-periphery/
+infinity-core/=lib/infinity-periphery/lib/infinity-core/
 permit2/=lib/infinity-periphery/lib/permit2/
 @uniswap/v4-periphery/=lib/v4-periphery/
+@uniswap/v4-core/=lib/v4-periphery/lib/v4-core/
 @likwid-fi/core/=lib/likwid-margin/src/

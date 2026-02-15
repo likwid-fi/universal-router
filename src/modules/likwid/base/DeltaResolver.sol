@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {ActionConstants} from "@uniswap/v4-periphery/src/libraries/ActionConstants.sol";
+import {ActionConstants} from "../../../libraries/ActionConstants.sol";
 import {IVault} from "@likwid-fi/core/interfaces/IVault.sol";
 import {Currency} from "@likwid-fi/core/types/Currency.sol";
 

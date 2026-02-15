@@ -10,8 +10,8 @@ import {SafeCast} from "@uniswap/v4-core/src/libraries/SafeCast.sol";
 
 import {PathKey} from "@uniswap/v4-periphery/src/libraries/PathKey.sol";
 import {Actions} from "@uniswap/v4-periphery/src/libraries/Actions.sol";
-import {ActionConstants} from "@uniswap/v4-periphery/src/libraries/ActionConstants.sol";
-import {BipsLibrary} from "@uniswap/v4-periphery/src/libraries/BipsLibrary.sol";
+import {ActionConstants} from "../../libraries/ActionConstants.sol";
+import {BipsLibrary} from "../../libraries/BipsLibrary.sol";
 import {SwapParams} from "@uniswap/v4-core/src/types/PoolOperation.sol";
 import {BaseActionsRouterV4} from "./base/BaseActionsRouter.sol";
 import {CalldataDecoder} from "./base/CalldataDecoder.sol";

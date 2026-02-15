@@ -7,7 +7,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Actions} from "@uniswap/v4-periphery/src/libraries/Actions.sol";
 import {ActionConstants} from "infinity-periphery/src/libraries/ActionConstants.sol";
 
-import {ISwapV2Factory} from "../../src/modules/v2/interfaces/ISwapV2Factory.sol";
 import {ILikwidV2Router} from "../../src/modules/likwid/interfaces/ILikwidV2Router.sol";
 import {LikwidV2Test} from "./LikwidV2.t.sol";
 import {Commands} from "../../src/libraries/Commands.sol";
