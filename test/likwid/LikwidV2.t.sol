@@ -25,6 +25,9 @@ abstract contract LikwidV2Test is Test {
     uint256 constant BALANCE = 100_000 ether;
     address constant FROM = address(1234);
     address constant LIKWID_VAULT = 0x065d449ec9D139740343990B7E1CF05fA830e4Ba;
+    address constant WETH9 = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+
+    address constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
 
     UniversalV2PartRouter public router;
     PoolKey public key01;
@@ -33,7 +36,7 @@ abstract contract LikwidV2Test is Test {
         vm.createSelectFork(vm.envString("FORK_1_URL"));
 
         RouterParameters memory params = RouterParameters({
-            weth9: address(0),
+            weth9: WETH9,
             pancakeswapV2Factory: address(0),
             pancakeswapV3Factory: address(0),
             stableFactory: address(0),
@@ -41,7 +44,7 @@ abstract contract LikwidV2Test is Test {
             infiVault: address(0),
             infiClPoolManager: address(0),
             infiBinPoolManager: address(0),
-            uniswapV2Factory: address(0),
+            uniswapV2Factory: UNISWAP_V2_FACTORY,
             uniswapV3Factory: address(0),
             uniswapPoolManager: address(0),
             likwidVault: LIKWID_VAULT
@@ -73,6 +76,37 @@ abstract contract LikwidV2Test is Test {
     function test_likwid_v2_swapExactInputSingle01() public {
         // Encode the Universal Router command
         bytes memory commands = abi.encodePacked(uint8(Commands.LIKWID_V2_SWAP));
+        bytes[] memory inputs = new bytes[](1);
+
+        // Encode V4Router actions
+        bytes memory actions =
+            abi.encodePacked(uint8(Actions.SWAP_EXACT_IN_SINGLE), uint8(Actions.SETTLE_ALL), uint8(Actions.TAKE_ALL));
+
+        // Prepare parameters for each action
+        bytes[] memory params = new bytes[](3);
+        params[0] = abi.encode(
+            ILikwidV2Router.ExactInputSingleParamsLikwidV2({
+                poolKey: key01, zeroForOne: true, amountIn: uint128(AMOUNT), amountOutMinimum: 0
+            })
+        );
+        params[1] = abi.encode(key01.currency0, AMOUNT);
+        params[2] = abi.encode(key01.currency1, 0);
+
+        // Combine actions and params into inputs
+        inputs[0] = abi.encode(actions, params);
+
+        // Execute the swap
+        uint256 deadline = block.timestamp + 20;
+        router.execute{value: AMOUNT}(commands, inputs, deadline);
+
+        // Verify and return the output amount
+        uint256 amountOut = IERC20(Currency.unwrap(key01.currency1)).balanceOf(FROM);
+        require(amountOut >= BALANCE, "Insufficient output amount");
+    }
+
+    function test_likwid_v2_swapExactInputSingleWithWETH01() public {
+        // Encode the Universal Router command
+        bytes memory commands = abi.encodePacked(uint8(Commands.WRAP_ETH), uint8(Commands.LIKWID_V2_SWAP));
         bytes[] memory inputs = new bytes[](1);
 
         // Encode V4Router actions
