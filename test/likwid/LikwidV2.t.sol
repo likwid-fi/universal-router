@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Actions} from "@uniswap/v4-periphery/src/libraries/Actions.sol";
@@ -57,14 +57,10 @@ abstract contract LikwidV2Test is Test {
             deal(token0(), FROM, BALANCE);
             IERC20(token0()).forceApprove(address(router), type(uint256).max);
         }
-        console.log("Setup token0 complete");
         deal(token1(), FROM, BALANCE);
         deal(token2(), FROM, BALANCE);
-        console.log("Setup approve0 complete");
         IERC20(token2()).forceApprove(address(router), type(uint256).max);
-        console.log("Setup approve2 complete");
         IERC20(token1()).forceApprove(address(router), type(uint256).max);
-        console.log("Setup approve1 complete");
         key01 = PoolKey({
             currency0: Currency.wrap(token0()),
             currency1: Currency.wrap(token1()),
