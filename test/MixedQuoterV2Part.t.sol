@@ -137,4 +137,50 @@ contract MixedQuoterV2PartTest is Test {
         assertEq(fees[0], fee);
         assertGt(gasEstimate, 10000);
     }
+
+    function test_likwid_v2_uniswap_v2_quoteMixedExactInput() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(0);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V2));
+
+        bytes[] memory params = new bytes[](2);
+        params[0] = abi.encode(NATIVE_USDT_POOL_ID);
+
+        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1e6);
+
+        console.log("Amount out:%s,gasEstimate", amountOut, gasEstimate);
+        assertGt(amountOut, 0.8e6);
+        assertGt(fees[0], 0);
+        assertEq(fees[1], 3000);
+        assertGt(gasEstimate, 10000);
+    }
+
+    function test_likwid_v2_uniswap_v2_quoteMixedExactOutput() public {
+        address[] memory paths = new address[](3);
+        paths[0] = address(USDT);
+        paths[1] = address(0);
+        paths[2] = address(USDT);
+
+        bytes memory pools = new bytes(2);
+        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
+        pools[1] = bytes1(uint8(PoolTypes.UNISWAP_V2));
+
+        bytes[] memory params = new bytes[](2);
+        params[0] = abi.encode(NATIVE_USDT_POOL_ID);
+
+        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
+            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 0.8e6);
+
+        console.log("Amount in:%s,gasEstimate", amountIn, gasEstimate);
+        assertGt(amountIn, 0.8e6);
+        assertGt(fees[0], 0);
+        assertEq(fees[1], 3000);
+        assertGt(gasEstimate, 10000);
+    }
 }
