@@ -14,7 +14,6 @@ import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
 import {Currency as CurrencyLikwid} from "@likwid-fi/core/types/Currency.sol";
 import {PoolKey as PoolKeyLikwid} from "@likwid-fi/core/types/PoolKey.sol";
 import {PoolId} from "@likwid-fi/core/types/PoolId.sol";
-import {PoolStatus} from "./types/PoolStatus.sol";
 import {IMixedQuoter} from "./interfaces/IMixedQuoter.sol";
 import {IV3Quoter} from "./interfaces/IV3Quoter.sol";
 import {IV4Quoter} from "./interfaces/IV4Quoter.sol";
@@ -91,11 +90,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 uint24 fee = abi.decode(params[poolIndex], (uint24));
                 fees[poolIndex] = fee;
                 IV3Quoter.QuoteExactInputSingleParams memory quoteParams = IV3Quoter.QuoteExactInputSingleParams({
-                    tokenIn: tokenIn,
-                    tokenOut: tokenOut,
-                    amountIn: amountIn,
-                    fee: fee,
-                    sqrtPriceLimitX96: 0
+                    tokenIn: tokenIn, tokenOut: tokenOut, amountIn: amountIn, fee: fee, sqrtPriceLimitX96: 0
                 });
                 if (pool == PoolTypes.UNISWAP_V3) {
                     (amountOut,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactInputSingle(quoteParams);
@@ -105,10 +100,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
                 (amountOut, gasEstimateForCurrentPool) = quoteExactInputSingleStable(
                     QuoteExactInputSingleStableParams({
-                        tokenIn: tokenIn,
-                        tokenOut: tokenOut,
-                        amountIn: amountIn,
-                        flag: 2
+                        tokenIn: tokenIn, tokenOut: tokenOut, amountIn: amountIn, flag: 2
                     })
                 );
                 fees[poolIndex] = 0;
@@ -128,15 +120,11 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (amountOut, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactInputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
-                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
-                PoolKeyLikwid memory poolKey = status.key;
-                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
-                uint24 fee = poolKey.fee;
-                (amountOut, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountOut(status, zeroForOne, amountIn);
+                uint24 fee;
+                (amountOut, fee,) = LIKWID_QUOTER.getAmountOut(poolId, zeroForOne, amountIn, true);
                 fees[poolIndex] = fee;
-                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft() + 51_0000;
+                gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft() + 10_0000;
             } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL || pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
                 QuoteMixedInfiExactSingleParams memory infiParams =
                     abi.decode(params[poolIndex], (QuoteMixedInfiExactSingleParams));
@@ -199,11 +187,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 uint24 fee = abi.decode(params[poolIndex], (uint24));
                 fees[poolIndex] = fee;
                 IV3Quoter.QuoteExactOutputSingleParams memory quoteParams = IV3Quoter.QuoteExactOutputSingleParams({
-                    tokenIn: tokenIn,
-                    tokenOut: tokenOut,
-                    amount: amountOut,
-                    fee: fee,
-                    sqrtPriceLimitX96: 0
+                    tokenIn: tokenIn, tokenOut: tokenOut, amount: amountOut, fee: fee, sqrtPriceLimitX96: 0
                 });
                 if (pool == PoolTypes.UNISWAP_V3) {
                     (amountIn,,, gasEstimateForCurrentPool) = UNISWAP_V3_QUOTER.quoteExactOutputSingle(quoteParams);
@@ -213,10 +197,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.PANCAKESWAP_STABLE) {
                 (amountIn, gasEstimateForCurrentPool) = quoteExactOutputSingleStable(
                     QuoteExactOutputSingleStableParams({
-                        tokenIn: tokenIn,
-                        tokenOut: tokenOut,
-                        amountOut: amountOut,
-                        flag: 2
+                        tokenIn: tokenIn, tokenOut: tokenOut, amountOut: amountOut, flag: 2
                     })
                 );
                 fees[poolIndex] = 0;
@@ -236,13 +217,9 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (amountIn, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactOutputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
-                PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
-                PoolKeyLikwid memory poolKey = status.key;
-                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
-                uint24 fee = poolKey.fee;
-                (amountIn, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountIn(status, zeroForOne, amountOut);
+                uint24 fee;
+                (amountIn, fee,) = LIKWID_QUOTER.getAmountIn(poolId, zeroForOne, amountOut, true);
                 fees[poolIndex] = fee;
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft() + 51_0000;
             } else if (pool == PoolTypes.PANCAKESWAP_INFINITY_CL || pool == PoolTypes.PANCAKESWAP_INFINITY_BIN) {
@@ -289,10 +266,12 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         }
     }
 
-    function checkPoolKeyCurrencyLikwid(PoolKeyLikwid memory poolKey, bool isZeroForOne, address tokenIn, address tokenOut)
-        private
-        pure
-    {
+    function checkPoolKeyCurrencyLikwid(
+        PoolKeyLikwid memory poolKey,
+        bool isZeroForOne,
+        address tokenIn,
+        address tokenOut
+    ) private pure {
         CurrencyLikwid currency0;
         CurrencyLikwid currency1;
         if (isZeroForOne) {

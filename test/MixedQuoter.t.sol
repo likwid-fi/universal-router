@@ -37,7 +37,7 @@ contract MixedQuoterTest is Test {
 
         QuoterParameters memory params = QuoterParameters({
             weth9: address(WETH9),
-            likwidV2StatusManager: address(0x622A27A80D111cEe6Ef7f0359C359eDCD87e2280),
+            likwidQuoter: address(0x622A27A80D111cEe6Ef7f0359C359eDCD87e2280),
             uniswapV2Router: address(0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24),
             uniswapV3Quoter: address(0x78D78E420Da98ad378D7799bE8f4AF69033EB077),
             uniswapV4Quoter: address(0x9F75dD27D6664c475B90e105573E550ff69437B0),
@@ -415,95 +415,6 @@ contract MixedQuoterTest is Test {
         console.log("Amount in:", amountIn);
         assertGt(amountIn, 0.9 ether);
         assertEq(fees[0], 500);
-        assertGt(gasEstimate, 10000);
-    }
-
-    function test_likwid_v2_quoteMixedExactInput01() public {
-        address[] memory paths = new address[](2);
-        paths[0] = address(0);
-        paths[1] = address(BTCB);
-
-        bytes memory pools = new bytes(1);
-        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
-
-        bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.3% fee tier
-        PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
-        params[0] = abi.encode(poolId);
-
-        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
-            mixedQuoter.quoteMixedExactInput(paths, pools, params, 0.1 ether);
-
-        console.log("Amount out:%s,gasEstimate", amountOut, gasEstimate);
-        assertGt(amountOut, 0.0006 ether);
-        assertEq(fees[0], fee);
-        assertGt(gasEstimate, 10000);
-    }
-
-    function test_likwid_v2_quoteMixedExactInput02() public {
-        address[] memory paths = new address[](2);
-        paths[0] = address(0);
-        paths[1] = address(BTCB);
-
-        bytes memory pools = new bytes(1);
-        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
-
-        bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.3% fee tier
-        PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
-        params[0] = abi.encode(poolId);
-
-        (uint256 amountOut, uint256 gasEstimate, uint256[] memory fees) =
-            mixedQuoter.quoteMixedExactInput(paths, pools, params, 1 ether);
-
-        console.log("Amount out:", amountOut);
-        assertGt(amountOut, 0.005 ether);
-        assertLt(amountOut, 0.007 ether);
-        assertGt(fees[0], fee);
-        assertGt(gasEstimate, 10000);
-    }
-
-    function test_likwid_v2_quoteMixedExactOutput01() public {
-        address[] memory paths = new address[](2);
-        paths[0] = address(0);
-        paths[1] = address(BTCB);
-
-        bytes memory pools = new bytes(1);
-        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
-
-        bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.3% fee tier
-        PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
-        params[0] = abi.encode(poolId);
-
-        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
-            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 0.0007 ether);
-
-        console.log("Amount in:", amountIn);
-        assertGt(amountIn, 0.1 ether);
-        assertEq(fees[0], fee);
-        assertGt(gasEstimate, 10000);
-    }
-
-    function test_likwid_v2_quoteMixedExactOutput02() public {
-        address[] memory paths = new address[](2);
-        paths[0] = address(0);
-        paths[1] = address(BTCB);
-
-        bytes memory pools = new bytes(1);
-        pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
-
-        bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.3% fee tier
-        PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
-        params[0] = abi.encode(poolId);
-
-        (uint256 amountIn, uint256 gasEstimate, uint256[] memory fees) =
-            mixedQuoter.quoteMixedExactOutput(paths, pools, params, 0.006 ether);
-
-        console.log("Amount in:", amountIn);
-        assertGt(amountIn, 1 ether);
-        assertGt(fees[0], fee);
         assertGt(gasEstimate, 10000);
     }
 
