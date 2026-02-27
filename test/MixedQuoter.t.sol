@@ -38,6 +38,7 @@ contract MixedQuoterTest is Test {
         QuoterParameters memory params = QuoterParameters({
             weth9: address(WETH9),
             likwidQuoter: address(0x622A27A80D111cEe6Ef7f0359C359eDCD87e2280),
+            likwidPairManager: address(0),
             uniswapV2Router: address(0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24),
             uniswapV3Quoter: address(0x78D78E420Da98ad378D7799bE8f4AF69033EB077),
             uniswapV4Quoter: address(0x9F75dD27D6664c475B90e105573E550ff69437B0),

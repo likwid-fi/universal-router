@@ -120,7 +120,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (amountOut, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactInputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
+                PoolKeyLikwid memory poolKey = LIKWID_PAIR_MANAGER.poolKeys(poolId);
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
+                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
                 uint24 fee;
                 (amountOut, fee,) = LIKWID_QUOTER.getAmountOut(poolId, zeroForOne, amountIn, true);
                 fees[poolIndex] = fee;
@@ -217,7 +220,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 (amountIn, gasEstimateForCurrentPool) = UNISWAP_V4_QUOTER.quoteExactOutputSingle(swapParams);
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
+                PoolKeyLikwid memory poolKey = LIKWID_PAIR_MANAGER.poolKeys(poolId);
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
+                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
                 uint24 fee;
                 (amountIn, fee,) = LIKWID_QUOTER.getAmountIn(poolId, zeroForOne, amountOut, true);
                 fees[poolIndex] = fee;
@@ -313,10 +319,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
     {
         if (poolKey.currency0.isAddressZero()) {
             if (tokenIn == WETH9) {
-                tokenIn = Currency.unwrap(CurrencyLibrary.ADDRESS_ZERO);
+                tokenIn = address(0);
             }
             if (tokenOut == WETH9) {
-                tokenOut = Currency.unwrap(CurrencyLibrary.ADDRESS_ZERO);
+                tokenOut = address(0);
             }
         }
         return (tokenIn, tokenOut);
@@ -327,7 +333,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         view
         returns (address, address)
     {
-        if (poolKey.currency0 == CurrencyLikwid.wrap(address(0))) {
+        if (poolKey.currency0.isAddressZero()) {
             if (tokenIn == WETH9) {
                 tokenIn = address(0);
             }
@@ -340,14 +346,14 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
 
     function convertWETHToInfiNativeCurrency(PoolKeyInfinity memory poolKey, address tokenIn, address tokenOut)
         private
-        pure
+        view
         returns (address, address)
     {
-        if (poolKey.currency0 == CurrencyInfinity.wrap(address(0))) {
-            if (tokenIn == address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
+        if (poolKey.currency0.isNative()) {
+            if (tokenIn == WETH9) {
                 tokenIn = address(0);
             }
-            if (tokenOut == address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
+            if (tokenOut == WETH9) {
                 tokenOut = address(0);
             }
         }

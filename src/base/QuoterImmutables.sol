@@ -6,11 +6,13 @@ import {IV3Quoter} from "../interfaces/IV3Quoter.sol";
 import {IV4Quoter} from "../interfaces/IV4Quoter.sol";
 import {IInfinityQuoter} from "../interfaces/IInfinityQuoter.sol";
 import {ILikwidQuoter} from "../interfaces/ILikwidQuoter.sol";
+import {ILikwidPairManager} from "../interfaces/ILikwidPairManager.sol";
 
 struct QuoterParameters {
     address weth9;
     // likwid
     address likwidQuoter;
+    address likwidPairManager;
     // uniswap
     address uniswapV2Router;
     address uniswapV3Quoter;
@@ -30,6 +32,7 @@ contract QuoterImmutables {
     /// @dev WETH9 address
     address internal immutable WETH9;
     ILikwidQuoter internal immutable LIKWID_QUOTER;
+    ILikwidPairManager internal immutable LIKWID_PAIR_MANAGER;
     IV2Quoter internal immutable UNISWAP_V2_QUOTER;
     IV3Quoter internal immutable UNISWAP_V3_QUOTER;
     IV4Quoter internal immutable UNISWAP_V4_QUOTER;
@@ -43,6 +46,7 @@ contract QuoterImmutables {
     constructor(QuoterParameters memory params) {
         WETH9 = params.weth9;
         LIKWID_QUOTER = ILikwidQuoter(params.likwidQuoter);
+        LIKWID_PAIR_MANAGER = ILikwidPairManager(params.likwidPairManager);
         UNISWAP_V2_QUOTER = IV2Quoter(params.uniswapV2Router);
         UNISWAP_V3_QUOTER = IV3Quoter(params.uniswapV3Quoter);
         UNISWAP_V4_QUOTER = IV4Quoter(params.uniswapV4Quoter);
