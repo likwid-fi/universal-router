@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.26;
 
-import {PoolKey, PoolKeyInfinity} from "../types/PoolKey.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
 
 interface IMixedQuoter {
     struct QuoteMixedInfiExactSingleParams {

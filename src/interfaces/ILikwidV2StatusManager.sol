@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {PoolId} from "../types/PoolId.sol";
+import {PoolId} from "@likwid-fi/core/types/PoolId.sol";
 import {PoolStatus} from "../types/PoolStatus.sol";
 
 interface ILikwidV2StatusManager {

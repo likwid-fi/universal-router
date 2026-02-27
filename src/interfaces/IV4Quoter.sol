@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {PoolKey} from "../types/PoolKey.sol";
-import {Currency} from "../types/Currency.sol";
-import {PathKey} from "../libraries/PathKey.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
+import {PathKey} from "@uniswap/v4-periphery/src/libraries/PathKey.sol";
 
 /// @title IV4Quoter
 /// @notice Interface for the V4Quoter contract

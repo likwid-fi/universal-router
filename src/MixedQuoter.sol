@@ -6,9 +6,14 @@ import {IStableSwap} from "./modules/pancakeswap/interfaces/IStableSwap.sol";
 import {IStableSwapInfo} from "./modules/pancakeswap/interfaces/IStableSwapInfo.sol";
 import {QuoterParameters, QuoterImmutables} from "./base/QuoterImmutables.sol";
 import {PoolTypes} from "./libraries/PoolTypes.sol";
-import {Currency, CurrencyLibrary} from "./types/Currency.sol";
-import {PoolKey, PoolKeyInfinity} from "./types/PoolKey.sol";
-import {PoolId} from "./types/PoolId.sol";
+import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
+import {CurrencyLibrary} from "@uniswap/v4-core/src/types/Currency.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {Currency as CurrencyInfinity} from "infinity-core/src/types/Currency.sol";
+import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
+import {Currency as CurrencyLikwid} from "@likwid-fi/core/types/Currency.sol";
+import {PoolKey as PoolKeyLikwid} from "@likwid-fi/core/types/PoolKey.sol";
+import {PoolId} from "@likwid-fi/core/types/PoolId.sol";
 import {PoolStatus} from "./types/PoolStatus.sol";
 import {IMixedQuoter} from "./interfaces/IMixedQuoter.sol";
 import {IV3Quoter} from "./interfaces/IV3Quoter.sol";
@@ -74,10 +79,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 path[0] = tokenIn;
                 path[1] = tokenOut;
                 if (pool == PoolTypes.UNISWAP_V2) {
-                    fees[poolIndex] = 3000; // Uniswap V2 uses a fixed fee of 0.3%
+                    fees[poolIndex] = 3000;
                     amountOut = UNISWAP_V2_QUOTER.getAmountsOut(amountIn, path)[1];
                 } else {
-                    fees[poolIndex] = 2500; // PancakeSwap V2 uses a fixed fee of 0.25%
+                    fees[poolIndex] = 2500;
                     amountOut = PANCAKESWAP_V2_QUOTER.getAmountsOut(amountIn, path)[1];
                 }
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
@@ -110,9 +115,9 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.UNISWAP_V4) {
                 QuoteMixedV4ExactSingleParams memory v4Params =
                     abi.decode(params[poolIndex], (QuoteMixedV4ExactSingleParams));
-                (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyV4(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
+                checkPoolKeyCurrencyV4(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
                 fees[poolIndex] = v4Params.poolKey.fee;
                 IV4Quoter.QuoteExactSingleParams memory swapParams = IV4Quoter.QuoteExactSingleParams({
                     poolKey: v4Params.poolKey,
@@ -124,10 +129,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
                 PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
-                PoolKey memory poolKey = status.key;
-                (tokenIn, tokenOut) = convertWETHToNativeCurrency(poolKey, tokenIn, tokenOut);
+                PoolKeyLikwid memory poolKey = status.key;
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrency(poolKey, zeroForOne, tokenIn, tokenOut);
+                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
                 uint24 fee = poolKey.fee;
                 (amountOut, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountOut(status, zeroForOne, amountIn);
                 fees[poolIndex] = fee;
@@ -182,10 +187,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
                 path[0] = tokenIn;
                 path[1] = tokenOut;
                 if (pool == PoolTypes.UNISWAP_V2) {
-                    fees[poolIndex] = 3000; // Uniswap V2 uses a fixed fee of 0.3%
+                    fees[poolIndex] = 3000;
                     amountIn = UNISWAP_V2_QUOTER.getAmountsIn(amountOut, path)[0];
                 } else {
-                    fees[poolIndex] = 2500; // PancakeSwap V2 uses a fixed fee of 0.25%
+                    fees[poolIndex] = 2500;
                     amountIn = PANCAKESWAP_V2_QUOTER.getAmountsIn(amountOut, path)[0];
                 }
                 gasEstimateForCurrentPool = gasEstimateForCurrentPool - gasleft();
@@ -218,9 +223,9 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.UNISWAP_V4) {
                 QuoteMixedV4ExactSingleParams memory v4Params =
                     abi.decode(params[poolIndex], (QuoteMixedV4ExactSingleParams));
-                (tokenIn, tokenOut) = convertWETHToNativeCurrency(v4Params.poolKey, tokenIn, tokenOut);
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyV4(v4Params.poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrency(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
+                checkPoolKeyCurrencyV4(v4Params.poolKey, zeroForOne, tokenIn, tokenOut);
                 fees[poolIndex] = v4Params.poolKey.fee;
                 IV4Quoter.QuoteExactSingleParams memory swapParams = IV4Quoter.QuoteExactSingleParams({
                     poolKey: v4Params.poolKey,
@@ -232,10 +237,10 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
             } else if (pool == PoolTypes.LIKWID_V2) {
                 PoolId poolId = abi.decode(params[poolIndex], (PoolId));
                 PoolStatus memory status = LIKWID_V2_STATUS_MANAGER.getStatus(poolId);
-                PoolKey memory poolKey = status.key;
-                (tokenIn, tokenOut) = convertWETHToNativeCurrency(poolKey, tokenIn, tokenOut);
+                PoolKeyLikwid memory poolKey = status.key;
+                (tokenIn, tokenOut) = convertWETHToNativeCurrencyLikwid(poolKey, tokenIn, tokenOut);
                 bool zeroForOne = tokenIn < tokenOut;
-                checkPoolKeyCurrency(poolKey, zeroForOne, tokenIn, tokenOut);
+                checkPoolKeyCurrencyLikwid(poolKey, zeroForOne, tokenIn, tokenOut);
                 uint24 fee = poolKey.fee;
                 (amountIn, fee,) = LIKWID_V2_STATUS_MANAGER.getAmountIn(status, zeroForOne, amountOut);
                 fees[poolIndex] = fee;
@@ -266,7 +271,7 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         }
     }
 
-    function checkPoolKeyCurrency(PoolKey memory poolKey, bool isZeroForOne, address tokenIn, address tokenOut)
+    function checkPoolKeyCurrencyV4(PoolKey memory poolKey, bool isZeroForOne, address tokenIn, address tokenOut)
         private
         pure
     {
@@ -284,27 +289,45 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         }
     }
 
-    function checkInfiPoolKeyCurrency(
-        PoolKeyInfinity memory poolKey,
-        bool isZeroForOne,
-        address tokenIn,
-        address tokenOut
-    ) private pure {
-        Currency currency0;
-        Currency currency1;
+    function checkPoolKeyCurrencyLikwid(PoolKeyLikwid memory poolKey, bool isZeroForOne, address tokenIn, address tokenOut)
+        private
+        pure
+    {
+        CurrencyLikwid currency0;
+        CurrencyLikwid currency1;
         if (isZeroForOne) {
-            currency0 = Currency.wrap(tokenIn);
-            currency1 = Currency.wrap(tokenOut);
+            currency0 = CurrencyLikwid.wrap(tokenIn);
+            currency1 = CurrencyLikwid.wrap(tokenOut);
         } else {
-            currency0 = Currency.wrap(tokenOut);
-            currency1 = Currency.wrap(tokenIn);
+            currency0 = CurrencyLikwid.wrap(tokenOut);
+            currency1 = CurrencyLikwid.wrap(tokenIn);
         }
         if (!(poolKey.currency0 == currency0 && poolKey.currency1 == currency1)) {
             revert InvalidPoolKeyCurrency();
         }
     }
 
-    function convertWETHToNativeCurrency(PoolKey memory poolKey, address tokenIn, address tokenOut)
+    function checkInfiPoolKeyCurrency(
+        PoolKeyInfinity memory poolKey,
+        bool isZeroForOne,
+        address tokenIn,
+        address tokenOut
+    ) private pure {
+        CurrencyInfinity currency0;
+        CurrencyInfinity currency1;
+        if (isZeroForOne) {
+            currency0 = CurrencyInfinity.wrap(tokenIn);
+            currency1 = CurrencyInfinity.wrap(tokenOut);
+        } else {
+            currency0 = CurrencyInfinity.wrap(tokenOut);
+            currency1 = CurrencyInfinity.wrap(tokenIn);
+        }
+        if (!(poolKey.currency0 == currency0 && poolKey.currency1 == currency1)) {
+            revert InvalidPoolKeyCurrency();
+        }
+    }
+
+    function convertWETHToNativeCurrencyV4(PoolKey memory poolKey, address tokenIn, address tokenOut)
         private
         view
         returns (address, address)
@@ -320,17 +343,33 @@ contract MixedQuoter is IMixedQuoter, QuoterImmutables {
         return (tokenIn, tokenOut);
     }
 
-    function convertWETHToInfiNativeCurrency(PoolKeyInfinity memory poolKey, address tokenIn, address tokenOut)
+    function convertWETHToNativeCurrencyLikwid(PoolKeyLikwid memory poolKey, address tokenIn, address tokenOut)
         private
         view
         returns (address, address)
     {
-        if (poolKey.currency0.isAddressZero()) {
+        if (poolKey.currency0 == CurrencyLikwid.wrap(address(0))) {
             if (tokenIn == WETH9) {
-                tokenIn = Currency.unwrap(CurrencyLibrary.ADDRESS_ZERO);
+                tokenIn = address(0);
             }
             if (tokenOut == WETH9) {
-                tokenOut = Currency.unwrap(CurrencyLibrary.ADDRESS_ZERO);
+                tokenOut = address(0);
+            }
+        }
+        return (tokenIn, tokenOut);
+    }
+
+    function convertWETHToInfiNativeCurrency(PoolKeyInfinity memory poolKey, address tokenIn, address tokenOut)
+        private
+        pure
+        returns (address, address)
+    {
+        if (poolKey.currency0 == CurrencyInfinity.wrap(address(0))) {
+            if (tokenIn == address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
+                tokenIn = address(0);
+            }
+            if (tokenOut == address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE)) {
+                tokenOut = address(0);
             }
         }
         return (tokenIn, tokenOut);

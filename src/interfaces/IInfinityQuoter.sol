@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {PoolKeyInfinity} from "../types/PoolKey.sol";
-import {Currency} from "../types/Currency.sol";
-import {PathKeyInfinity} from "../libraries/PathKey.sol";
+import {Currency} from "infinity-core/src/types/Currency.sol";
+import {PoolKey} from "infinity-core/src/types/PoolKey.sol";
+import {PathKey} from "infinity-periphery/src/libraries/PathKey.sol";
 
 /// @title IInfinityQuoter
 /// @notice Interface for the InfinityQuoter contract
 interface IInfinityQuoter {
     struct QuoteExactSingleParams {
-        PoolKeyInfinity poolKey;
+        PoolKey poolKey;
         bool zeroForOne;
         uint128 exactAmount;
         bytes hookData;
@@ -17,7 +17,7 @@ interface IInfinityQuoter {
 
     struct QuoteExactParams {
         Currency exactCurrency;
-        PathKeyInfinity[] path;
+        PathKey[] path;
         uint128 exactAmount;
     }
 

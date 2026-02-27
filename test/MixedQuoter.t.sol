@@ -7,9 +7,15 @@ import {ERC20} from "solmate/src/tokens/ERC20.sol";
 import {IMixedQuoter} from "../src/interfaces/IMixedQuoter.sol";
 import {MixedQuoter} from "../src/MixedQuoter.sol";
 import {PoolTypes} from "../src/libraries/PoolTypes.sol";
-import {Currency} from "../src/types/Currency.sol";
-import {PoolKey, PoolKeyInfinity} from "../src/types/PoolKey.sol";
-import {PoolId} from "../src/types/PoolId.sol";
+import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
+import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
+import {IHooks} from "@uniswap/v4-core/src/interfaces/IHooks.sol";
+import {PoolId} from "@uniswap/v4-core/src/types/PoolId.sol";
+import {PoolId as PoolIdInfinity} from "infinity-core/src/types/PoolId.sol";
+import {Currency as CurrencyInfinity} from "infinity-core/src/types/Currency.sol";
+import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
+import {IHooks as IHooksInfinity} from "infinity-core/src/interfaces/IHooks.sol";
+import {IPoolManager} from "infinity-core/src/interfaces/IPoolManager.sol";
 import {QuoterParameters} from "../src/base/QuoterImmutables.sol";
 
 contract MixedQuoterTest is Test {
@@ -365,7 +371,7 @@ contract MixedQuoterTest is Test {
             currency1: Currency.wrap(address(USDT)),
             fee: fee,
             tickSpacing: 10,
-            hooks: address(0)
+            hooks: IHooks(address(0))
         });
         console.logBytes32(PoolId.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedV4ExactSingleParams memory v4Params =
@@ -396,7 +402,7 @@ contract MixedQuoterTest is Test {
             currency1: Currency.wrap(address(USDT)),
             fee: fee,
             tickSpacing: 10,
-            hooks: address(0)
+            hooks: IHooks(address(0))
         });
         console.logBytes32(PoolId.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedV4ExactSingleParams memory v4Params =
@@ -421,7 +427,7 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.05% fee tier
+        uint24 fee = 3000; // 0.3% fee tier
         PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
         params[0] = abi.encode(poolId);
 
@@ -443,7 +449,7 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.05% fee tier
+        uint24 fee = 3000; // 0.3% fee tier
         PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
         params[0] = abi.encode(poolId);
 
@@ -466,7 +472,7 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.05% fee tier
+        uint24 fee = 3000; // 0.3% fee tier
         PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
         params[0] = abi.encode(poolId);
 
@@ -488,7 +494,7 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.LIKWID_V2));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 3000; // 0.05% fee tier
+        uint24 fee = 3000; // 0.3% fee tier
         PoolId poolId = PoolId.wrap(0x2d4c8880851691294e4da29abad90322c2d074fe2bac462f756ca8fb633391c5);
         params[0] = abi.encode(poolId);
 
@@ -552,14 +558,14 @@ contract MixedQuoterTest is Test {
         bytes[] memory params = new bytes[](1);
         uint24 fee = 335; // 0.0335% fee tier
         PoolKeyInfinity memory poolKey = PoolKeyInfinity({
-            currency0: Currency.wrap(address(0)),
-            currency1: Currency.wrap(address(USDT)),
+            currency0: CurrencyInfinity.wrap(address(0)),
+            currency1: CurrencyInfinity.wrap(address(USDT)),
             fee: fee,
-            hooks: address(0),
-            poolManager: 0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b,
+            hooks: IHooksInfinity(address(0)),
+            poolManager: IPoolManager(0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b),
             parameters: 0x00000000000000000000000000000000000000000000000000000000000a0000
         });
-        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        console.logBytes32(PoolIdInfinity.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedInfiExactSingleParams memory clParams =
             IMixedQuoter.QuoteMixedInfiExactSingleParams({poolKey: poolKey, hookData: ""});
         params[0] = abi.encode(clParams);
@@ -584,14 +590,14 @@ contract MixedQuoterTest is Test {
         bytes[] memory params = new bytes[](1);
         uint24 fee = 335; // 0.0335% fee tier
         PoolKeyInfinity memory poolKey = PoolKeyInfinity({
-            currency0: Currency.wrap(address(0)),
-            currency1: Currency.wrap(address(USDT)),
+            currency0: CurrencyInfinity.wrap(address(0)),
+            currency1: CurrencyInfinity.wrap(address(USDT)),
             fee: fee,
-            hooks: address(0),
-            poolManager: 0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b,
+            hooks: IHooksInfinity(address(0)),
+            poolManager: IPoolManager(0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b),
             parameters: 0x00000000000000000000000000000000000000000000000000000000000a0000
         });
-        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        console.logBytes32(PoolIdInfinity.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedInfiExactSingleParams memory clParams =
             IMixedQuoter.QuoteMixedInfiExactSingleParams({poolKey: poolKey, hookData: ""});
         params[0] = abi.encode(clParams);
@@ -614,16 +620,16 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_INFINITY_BIN));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 67; // 0.0335% fee tier
+        uint24 fee = 67; // 0.0067% fee tier
         PoolKeyInfinity memory poolKey = PoolKeyInfinity({
-            currency0: Currency.wrap(address(0)),
-            currency1: Currency.wrap(address(USDT)),
+            currency0: CurrencyInfinity.wrap(address(0)),
+            currency1: CurrencyInfinity.wrap(address(USDT)),
             fee: fee,
-            hooks: address(0),
-            poolManager: 0xC697d2898e0D09264376196696c51D7aBbbAA4a9,
+            hooks: IHooksInfinity(address(0)),
+            poolManager: IPoolManager(0xC697d2898e0D09264376196696c51D7aBbbAA4a9),
             parameters: 0x00000000000000000000000000000000000000000000000000000000000a0000
         });
-        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        console.logBytes32(PoolIdInfinity.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedInfiExactSingleParams memory clParams =
             IMixedQuoter.QuoteMixedInfiExactSingleParams({poolKey: poolKey, hookData: ""});
         params[0] = abi.encode(clParams);
@@ -646,16 +652,16 @@ contract MixedQuoterTest is Test {
         pools[0] = bytes1(uint8(PoolTypes.PANCAKESWAP_INFINITY_BIN));
 
         bytes[] memory params = new bytes[](1);
-        uint24 fee = 67;
+        uint24 fee = 67; // 0.0067% fee tier
         PoolKeyInfinity memory poolKey = PoolKeyInfinity({
-            currency0: Currency.wrap(address(0)),
-            currency1: Currency.wrap(address(USDT)),
+            currency0: CurrencyInfinity.wrap(address(0)),
+            currency1: CurrencyInfinity.wrap(address(USDT)),
             fee: fee,
-            hooks: address(0),
-            poolManager: 0xC697d2898e0D09264376196696c51D7aBbbAA4a9,
+            hooks: IHooksInfinity(address(0)),
+            poolManager: IPoolManager(0xC697d2898e0D09264376196696c51D7aBbbAA4a9),
             parameters: 0x00000000000000000000000000000000000000000000000000000000000a0000
         });
-        console.logBytes32(PoolId.unwrap(poolKey.toId()));
+        console.logBytes32(PoolIdInfinity.unwrap(poolKey.toId()));
         IMixedQuoter.QuoteMixedInfiExactSingleParams memory clParams =
             IMixedQuoter.QuoteMixedInfiExactSingleParams({poolKey: poolKey, hookData: ""});
         params[0] = abi.encode(clParams);

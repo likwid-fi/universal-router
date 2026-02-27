@@ -12,7 +12,8 @@ docs/
 
 # Dotenv file
 .env
-.vscode
+.vscode/
+.trae
 
 # Test files
 script/LocalTest.s.sol

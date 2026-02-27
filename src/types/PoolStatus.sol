@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import {PoolKey} from "./PoolKey.sol";
+import {PoolKey} from "@likwid-fi/core/types/PoolKey.sol";
 
 /// @notice Returns the status of a hook.
 struct PoolStatus {
