@@ -4,18 +4,9 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {ERC20} from "solmate/src/tokens/ERC20.sol";
 
-import {IMixedQuoter} from "../src/interfaces/IMixedQuoter.sol";
 import {MixedQuoter} from "../src/MixedQuoter.sol";
 import {PoolTypes} from "../src/libraries/PoolTypes.sol";
-import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
-import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
-import {IHooks} from "@uniswap/v4-core/src/interfaces/IHooks.sol";
-import {PoolId} from "@uniswap/v4-core/src/types/PoolId.sol";
-import {PoolId as PoolIdInfinity} from "infinity-core/src/types/PoolId.sol";
-import {Currency as CurrencyInfinity} from "infinity-core/src/types/Currency.sol";
-import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
-import {IHooks as IHooksInfinity} from "infinity-core/src/interfaces/IHooks.sol";
-import {IPoolManager} from "infinity-core/src/interfaces/IPoolManager.sol";
+import {PoolId} from "infinity-core/src/types/PoolId.sol";
 import {QuoterParameters} from "../src/base/QuoterImmutables.sol";
 
 contract MixedQuoterV2PartTest is Test {

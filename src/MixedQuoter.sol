@@ -7,7 +7,6 @@ import {IStableSwapInfo} from "./modules/pancakeswap/interfaces/IStableSwapInfo.
 import {QuoterParameters, QuoterImmutables} from "./base/QuoterImmutables.sol";
 import {PoolTypes} from "./libraries/PoolTypes.sol";
 import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
-import {CurrencyLibrary} from "@uniswap/v4-core/src/types/Currency.sol";
 import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {Currency as CurrencyInfinity} from "infinity-core/src/types/Currency.sol";
 import {PoolKey as PoolKeyInfinity} from "infinity-core/src/types/PoolKey.sol";
