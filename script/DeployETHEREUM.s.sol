@@ -8,7 +8,7 @@ import {UniversalV2PartRouter} from "../src/UniversalV2PartRouter.sol";
 import {RouterParameters} from "../src/base/RouterImmutables.sol";
 import {QuoterParameters} from "../src/base/QuoterImmutables.sol";
 
-// forge script script/Deploy.s.sol --broadcast --optimizer-runs 1000000 --rpc-url $ETHEREUM_MAINNET_RPC --private-key $PRIVATE_KEY
+// forge script script/DeployETHEREUM.s.sol --broadcast --optimizer-runs 1000000 --rpc-url $ETHEREUM_MAINNET_RPC --private-key $PRIVATE_KEY
 contract DeployScript is Script {
     MixedQuoter public mixedQuoter;
     UniversalV2PartRouter public router;
