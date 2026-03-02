@@ -16,5 +16,8 @@ docs/
 .trae
 
 # Test files
-script/LocalTest.s.sol
+**/.DS_Store
+broadcast/Deploy.s.sol
+broadcast/USDTTest*.s.sol
 broadcast/LocalTest.s.sol
+script/local
